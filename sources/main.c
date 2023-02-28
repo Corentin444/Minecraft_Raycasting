@@ -16,9 +16,9 @@ int main(int argc, char *argv[]) {
     int r, g, b;
 
     // extract the rgb values from the line "C1 = 255 255 255"
-    fscanf(file, "%d %d %d", &r, &g, &b);
+    fscanf(file, "%*s %*s %d %d %d", &r, &g, &b);
     if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
-        fprintf(stderr, "Error: invalid rgb value in config.txt\n");
+        fprintf(stderr, "Error: invalid rgb for C1 value in config.txt\n");
         return -1;
     } else {
         settings.c1r = r;
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     // extract the rgb values from the line "C2 = 255 255 255"
     fscanf(file, "%*s %*s %d %d %d", &r, &g, &b);
     if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
-        fprintf(stderr, "Error: invalid rgb value in config.txt\n");
+        fprintf(stderr, "Error: invalid rgb for C2 value in config.txt\n");
         return -1;
     } else {
         settings.c2r = r;
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     // extract the rgb values from the line "C3 = 255 255 255"
     fscanf(file, "%*s %*s %d %d %d", &r, &g, &b);
     if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
-        fprintf(stderr, "Error: invalid rgb value in config.txt\n");
+        fprintf(stderr, "Error: invalid rgb for C3 value in config.txt\n");
         return -1;
     } else {
         settings.c3r = r;
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     // extract the width and the height from the line "R = 1920 1080"
     fscanf(file, "%*s %*s %d %d", &settings.width, &settings.height);
-    printf("width=%d height=%d\n", settings.width, settings.height);
+    printf("width = %d height = %d\n", settings.width, settings.height);
 
     // extract the map from the file
     char **map = malloc(100 * sizeof(char *));

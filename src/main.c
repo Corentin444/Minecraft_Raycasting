@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
     struct Settings settings;
 
     // read the file config.txt char by char
-    FILE *file = fopen("config.txt", "r");
+    FILE *file = fopen("../config.txt", "r");
     if (file == NULL) {
         fprintf(stderr, "Error: cannot open the file config.txt\n");
         return -1;
@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     int r, g, b;
 
     // extract the rgb values from the line "C1 = 255 255 255"
-    fscanf(file, "%*s %*s %d %d %d", &r, &g, &b);
+    fscanf(file, "%d %d %d", &r, &g, &b);
     if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
         fprintf(stderr, "Error: invalid rgb value in config.txt\n");
         return -1;
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
     char c;
     int i = 0;
     int j = 0;
-    while ((c = fgetc(file)) != EOF) {
+    while ((c = (char) fgetc((file))) != EOF) {
         j++;
         if (c == '\n') {
             i++;

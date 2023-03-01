@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include "../include/main.h"
+#include "../include/parser.h"
 
 int main(int argc, char *argv[]) {
-    printf("Hello, World!\n");
+    struct Settings settings;
+    parse_config_file("config.txt", &settings);
+
     SDL_Window *window = NULL;
     if(0 != SDL_Init(SDL_INIT_VIDEO))
     {
@@ -10,7 +14,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     window = SDL_CreateWindow("Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              500, 500, SDL_WINDOW_SHOWN);
+                              settings.width, settings.height, SDL_WINDOW_SHOWN);
     if(NULL == window)
         fprintf(stderr, "Erreur de creation de la fenetre : %s\n", SDL_GetError());
     else

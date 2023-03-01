@@ -3,9 +3,14 @@
 #include "../include/main.h"
 #include "../include/parser.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {;
     struct Settings settings;
-    parse_config_file("config.txt", &settings);
+    if(parse_config_file("config.txt", &settings) == -1) {
+        fprintf(stderr, "Error: cannot parse the config file\n");
+        return -1;
+    } else {
+        printf("Config file parsed\n");
+    }
 
     SDL_Window *window = NULL;
     if(0 != SDL_Init(SDL_INIT_VIDEO))

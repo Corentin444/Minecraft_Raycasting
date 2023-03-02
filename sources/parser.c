@@ -11,17 +11,6 @@ int parse_config_file(const char *fileName, struct Settings *pSettings) {
     }
     printf("File opened\n");
 
-    char c;
-    int nbLines = 0;
-    while (c != EOF) {
-        c = fgetc(file);
-        if (c == '\n') {
-            nbLines++;
-        }
-    }
-    rewind(file);
-
-
     struct Color c1;
     fscanf(file, "%*s %*s %d %d %d", &c1.r, &c1.g, &c1.b);
     if (checkRgbValues(c1.r, c1.g, c1.b) == 0) {
@@ -49,22 +38,35 @@ int parse_config_file(const char *fileName, struct Settings *pSettings) {
     fscanf(file, "%*s %*s %d %d", &pSettings->width, &pSettings->height);
     printf("width = %d height = %d\n", pSettings->width, pSettings->height);
 
-    char line[256];
-    int i = 0;
-    char **map = malloc(sizeof(char *) * nbLines);
-    while (fgets(line, sizeof(line), file)) {
-        map[i] = line;
-        i++;
+    fscanf(file, "%*s %*s %d %d", &pSettings->nbColumns, &pSettings->nbLines);
+    printf("nbColumns = %d nbLines = %d\n", pSettings->nbColumns, pSettings->nbLines);
+
+    fgetc(file);
+    fgetc(file);
+
+    // init a double array of char
+    char **map = malloc(pSettings->nbLines * sizeof(char *));
+    for (int i = 0; i < pSettings->nbLines; i++) {
+        map[i] = malloc(pSettings->nbColumns * sizeof(char));
+    }
+
+    // fill the double array of char
+    for (int i = 0; i < pSettings->nbLines; i++) {
+        for (int j = 0; j < pSettings->nbColumns; j++) {
+            map[i][j] = fgetc(file);
+        }
+        fgetc(file);
+    }
+
+    // print the double array of char
+    for (int i = 0; i < pSettings->nbLines; i++) {
+        for (int j = 0; j < pSettings->nbColumns; j++) {
+            printf("%c ", map[i][j]);
+        }
+        printf("\n");
     }
 
     pSettings->map = map;
-    for (i = 0; i < nbLines; i++) {
-        for (int j = 0; j < nbLines; j++) {
-            printf("%c ", map[i][j]);
-        }
-        printf(" \n");
-    }
-
 
     fclose(file);
     return 0;

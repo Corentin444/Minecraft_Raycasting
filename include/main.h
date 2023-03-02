@@ -17,6 +17,8 @@ struct Settings {
     struct Color c3;
     int width;
     int height;
+    int nbLines;
+    int nbColumns;
     char **map;
 };
 

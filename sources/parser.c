@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <SDL2/SDL.h>
 #include "../include/main.h"
 #include "../include/parser.h"
 
@@ -11,26 +12,27 @@ int parse_config_file(const char *fileName, struct Settings *pSettings) {
     }
     printf("File opened\n");
 
-    struct Color c1;
-    fscanf(file, "%*s %*s %d %d %d", &c1.r, &c1.g, &c1.b);
-    if (checkRgbValues(c1.r, c1.g, c1.b) == 0) {
+    int r, g, b;
+    fscanf(file, "%*s %*s %d %d %d", &r, &g, &b);
+    if (checkRgbValues(r, g, b) == 0) {
+        SDL_Color c0 = {r, g, b, 255};
+        pSettings->c0 = c0;
+    } else {
+        return -1;
+    }
+    
+    fscanf(file, "%*s %*s %d %d %d", &r, &g, &b);
+    if (checkRgbValues(r, g, b) == 0) {
+        SDL_Color c1 = {r, g, b, 255};
         pSettings->c1 = c1;
     } else {
         return -1;
     }
 
-    struct Color c2;
-    fscanf(file, "%*s %*s %d %d %d", &c2.r, &c2.g, &c2.b);
-    if (checkRgbValues(c2.r, c2.g, c2.b) == 0) {
+    fscanf(file, "%*s %*s %d %d %d", &r, &g, &b);
+    if (checkRgbValues(r, g, b) == 0) {
+        SDL_Color c2 = {r, g, b, 255};
         pSettings->c2 = c2;
-    } else {
-        return -1;
-    }
-
-    struct Color c3;
-    fscanf(file, "%*s %*s %d %d %d", &c3.r, &c3.g, &c3.b);
-    if (checkRgbValues(c3.r, c3.g, c3.b) == 0) {
-        pSettings->c3 = c3;
     } else {
         return -1;
     }
@@ -40,6 +42,9 @@ int parse_config_file(const char *fileName, struct Settings *pSettings) {
 
     fscanf(file, "%*s %*s %d %d", &pSettings->nbColumns, &pSettings->nbLines);
     printf("nbColumns = %d nbLines = %d\n", pSettings->nbColumns, pSettings->nbLines);
+
+    pSettings->cellWidth = pSettings->width / pSettings->nbColumns;
+    pSettings->cellHeight = pSettings->height / pSettings->nbLines;
 
     fgetc(file);
     fgetc(file);

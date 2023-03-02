@@ -2,9 +2,9 @@
 #include <SDL2/SDL.h>
 #include "../include/main.h"
 #include "../include/parser.h"
+#include "../include/display.h"
 
 int main(int argc, char *argv[]) {
-    ;
     struct Settings settings;
     if (parse_config_file("config.txt", &settings) == -1) {
         fprintf(stderr, "Error: cannot parse the config file\n");
@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
         goto Quit;
     }
     statut = EXIT_SUCCESS;
+    display_map(renderer, &settings);
     SDL_Delay(5000);
 
     Quit:

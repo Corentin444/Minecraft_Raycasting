@@ -20,7 +20,7 @@ int parse_config_file(const char *fileName, struct Settings *pSettings) {
     } else {
         return -1;
     }
-    
+
     fscanf(file, "%*s %*s %d %d %d", &r, &g, &b);
     if (checkRgbValues(r, g, b) == 0) {
         SDL_Color c1 = {r, g, b, 255};
@@ -62,15 +62,6 @@ int parse_config_file(const char *fileName, struct Settings *pSettings) {
         }
         fgetc(file);
     }
-
-    // print the double array of char
-    for (int i = 0; i < pSettings->nbLines; i++) {
-        for (int j = 0; j < pSettings->nbColumns; j++) {
-            printf("%c ", map[i][j]);
-        }
-        printf("\n");
-    }
-
     pSettings->map = map;
 
     fclose(file);

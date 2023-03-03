@@ -1,27 +1,37 @@
 #include <SDL2/SDL.h>
+#include <stdio.h>
 #include "../include/display.h"
+#include "../include/main.h"
 
-void display_map(SDL_Renderer *renderer, struct Settings *pSettings) {
-    for (int i = 0; i < pSettings->nbLines; i++) {
-        for (int j = 0; j < pSettings->nbColumns; j++) {
-            char c = pSettings->map[j][i];
+void display_map(SDL_Renderer *renderer, struct Settings settings, struct Player player) {
+    for (int i = 0; i < settings.nbLines; i++) {
+        for (int j = 0; j < settings.nbColumns; j++) {
+            char c = settings.map[j][i];
             switch (c) {
                 case '0':
-                    SDL_SetRenderDrawColor(renderer, pSettings->c0.r, pSettings->c0.g, pSettings->c0.b, 255);
+                    SDL_SetRenderDrawColor(renderer, settings.c0.r, settings.c0.g, settings.c0.b, 255);
                     break;
                 case '1':
-                    SDL_SetRenderDrawColor(renderer, pSettings->c1.r, pSettings->c1.g, pSettings->c1.b, 255);
+                    SDL_SetRenderDrawColor(renderer, settings.c1.r, settings.c1.g, settings.c1.b, 255);
                     break;
                 case '2':
-                    SDL_SetRenderDrawColor(renderer, pSettings->c2.r, pSettings->c2.g, pSettings->c2.b, 255);
+                    SDL_SetRenderDrawColor(renderer, settings.c2.r, settings.c2.g, settings.c2.b, 255);
                     break;
                 default:
                     break;
             }
-            SDL_Rect rect = {i * pSettings->cellWidth, j * pSettings->cellHeight, pSettings->cellWidth,
-                             pSettings->cellHeight};
-            SDL_RenderFillRects(renderer, &rect, 1);
-            SDL_RenderPresent(renderer);
+            SDL_Rect rect = {i * settings.cellWidth, j * settings.cellHeight, settings.cellWidth,
+                             settings.cellHeight};
+            if (SDL_RenderFillRects(renderer, &rect, 1) != 0) {
+                printf("Error: %s\n", SDL_GetError());
+            }
         }
     }
+    // draw the player with a cercle
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_Rect rect = {player.x, player.y, 10, 10};
+    if (SDL_RenderFillRects(renderer, &rect, 1) != 0) {
+        printf("Error: %s\n", SDL_GetError());
+    }
+    SDL_RenderPresent(renderer);
 }

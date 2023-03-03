@@ -19,6 +19,18 @@ int loop(SDL_Renderer *renderer, struct Settings settings) {
                     break;
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym) {
+                        case SDLK_z:
+                            player.y -= 1;
+                            break;
+                        case SDLK_s:
+                            player.y += 1;
+                            break;
+                        case SDLK_q:
+                            player.x -= 1;
+                            break;
+                        case SDLK_d:
+                            player.x += 1;
+                            break;
                         case SDLK_ESCAPE:
                             quit = 1;
                             break;
@@ -30,8 +42,9 @@ int loop(SDL_Renderer *renderer, struct Settings settings) {
                     break;
             }
         }
-        SDL_Delay(10);
-        display_map(renderer, settings, player);
+        SDL_Delay(17);
+        displayScreen(renderer, settings, player);
+        SDL_RenderPresent(renderer);
     }
     return 0;
 }

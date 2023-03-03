@@ -30,7 +30,7 @@ void displayMinimap(SDL_Renderer *renderer, struct Settings settings, struct Pla
 
 void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Settings settings, struct Player player) {
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_Rect rect = {player.x, player.y, 3, 3};
+    SDL_Rect rect = {player.x*10, player.y*10, 10, 10};
     if (SDL_RenderFillRects(renderer, &rect, 1) != 0) {
         printf("Error: %s\n", SDL_GetError());
     }

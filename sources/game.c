@@ -5,8 +5,8 @@
 
 int loop(SDL_Renderer *renderer, struct Settings settings) {
     struct Player player;
-    player.x = 0;
-    player.y = 0;
+    player.x = 5;
+    player.y = 5;
     player.angle = 0;
 
     SDL_Event event;
@@ -30,6 +30,12 @@ int loop(SDL_Renderer *renderer, struct Settings settings) {
                             break;
                         case SDLK_d:
                             player.x += 1;
+                            break;
+                        case SDLK_LEFT:
+                            player.angle -= 1;
+                            break;
+                        case SDLK_RIGHT:
+                            player.angle += 1;
                             break;
                         case SDLK_ESCAPE:
                             quit = 1;

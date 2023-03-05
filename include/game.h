@@ -1,7 +1,3 @@
-//
-// Created by coren on 02/03/2023.
-//
-
 #ifndef CUB_3D_GAME_H
 #define CUB_3D_GAME_H
 
@@ -22,8 +18,7 @@ struct Compass {
     SDL_Color outline;
 };
 
-
-int loop(SDL_Renderer *renderer, struct Settings settings);
+void loop(SDL_Renderer *renderer, struct Settings settings);
 
 void movePlayer(struct Player *player, struct Settings settings, int direction);
 

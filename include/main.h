@@ -1,7 +1,3 @@
-//
-// Created by coren on 01/03/2023.
-//
-
 #ifndef CUB_3D_MAIN_H
 #define CUB_3D_MAIN_H
 
@@ -13,9 +9,9 @@ struct Settings {
     int height;
     int nbLines;
     int nbColumns;
-    int cellWidth;
-    int cellHeight;
     char **map;
 };
+
+int initWindowAndRenderer(struct Settings settings);
 
 #endif //CUB_3D_MAIN_H

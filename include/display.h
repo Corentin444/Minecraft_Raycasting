@@ -4,7 +4,7 @@
 #include "main.h"
 #include "game.h"
 
-void displayMinimap(SDL_Renderer *renderer, struct Settings settings, struct Player player);
+void displayMinimap(SDL_Renderer *renderer, struct Settings settings);
 
 void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player player);
 

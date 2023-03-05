@@ -1,9 +1,20 @@
-#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <math.h>
+#include <SDL2/SDL.h>
 #include "../include/display.h"
 
-void displayMinimap(SDL_Renderer *renderer, struct Settings settings, struct Player player) {
+void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Player player, struct Compass compass) {
+    SDL_SetRenderDrawColor(renderer, settings.c0.r, settings.c0.g, settings.c0.b, 255);
+    SDL_Rect rect = {0, 0, settings.width, settings.height};
+    if (SDL_RenderFillRects(renderer, &rect, 1) != 0) {
+        printf("Error: %s\n", SDL_GetError());
+    }
+    displayMinimap(renderer, settings);
+    displayCompass(renderer, player, compass);
+    displayPlayerOnMinimap(renderer, player);
+}
+
+void displayMinimap(SDL_Renderer *renderer, struct Settings settings) {
     for (int y = 0; y < settings.nbLines; y++) {
         for (int x = 0; x < settings.nbColumns; x++) {
             char c = settings.map[y][x];
@@ -26,7 +37,6 @@ void displayMinimap(SDL_Renderer *renderer, struct Settings settings, struct Pla
             }
         }
     }
-    displayPlayerOnMinimap(renderer, player);
 }
 
 void displayCompass(SDL_Renderer *renderer, struct Player player, struct Compass compass) {
@@ -49,22 +59,12 @@ void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player player) {
     }
 }
 
-void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Player player, struct Compass compass) {
-    SDL_SetRenderDrawColor(renderer, settings.c0.r, settings.c0.g, settings.c0.b, 255);
-    SDL_Rect rect = {0, 0, settings.width, settings.height};
-    if (SDL_RenderFillRects(renderer, &rect, 1) != 0) {
-        printf("Error: %s\n", SDL_GetError());
-    }
-    displayMinimap(renderer, settings, player);
-    displayCompass(renderer, player, compass);
-}
-
 void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius) {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     for (int w = 0; w < radius * 2; w++) {
         for (int h = 0; h < radius * 2; h++) {
-            int dx = radius - w; // horizontal offset
-            int dy = radius - h; // vertical offset
+            int dx = radius - w;
+            int dy = radius - h;
             if ((dx * dx + dy * dy) <= (radius * radius)) {
                 SDL_RenderDrawPoint(renderer, x + dx, y + dy);
             }

@@ -1,11 +1,10 @@
 #include <math.h>
-#include <stdio.h>
 #include <SDL2/SDL.h>
 #include "main.h"
 #include "display.h"
 #include "game.h"
 
-int loop(SDL_Renderer *renderer, struct Settings settings) {
+void loop(SDL_Renderer *renderer, struct Settings settings) {
     struct Player player = {5, 5, 0, 0.1, 0.05};
     int size = 30;
     struct Compass compass = {settings.width - size - 10, size + 9, size, {255, 0, 0}, {120, 120, 120}, {45, 45, 45}};
@@ -19,7 +18,6 @@ int loop(SDL_Renderer *renderer, struct Settings settings) {
                     quit = 1;
                     break;
                 case SDL_KEYDOWN:
-                    printf("x: %f, y: %f, r: %f\n", player.x, player.y, player.angle);
                     switch (event.key.keysym.sym) {
                         case SDLK_z:
                             movePlayer(&player, settings, 1);
@@ -48,7 +46,6 @@ int loop(SDL_Renderer *renderer, struct Settings settings) {
         displayScreen(renderer, settings, player, compass);
         SDL_RenderPresent(renderer);
     }
-    return 0;
 }
 
 void movePlayer(struct Player *player, struct Settings settings, int direction) {

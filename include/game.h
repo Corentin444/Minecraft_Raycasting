@@ -1,17 +1,28 @@
 #ifndef CUB_3D_GAME_H
 #define CUB_3D_GAME_H
 
-struct Player {
+#include "main.h"
+
+struct DVector {
     double x;
     double y;
-    double angle;
+};
+
+struct IVector {
+    int x;
+    int y;
+};
+
+struct Player {
+    struct DVector pos;
+    struct DVector dir;
+    struct DVector plane;
     double speed;
     double rotationSpeed;
 };
 
 struct Compass {
-    int x;
-    int y;
+    struct IVector pos;
     int size;
     SDL_Color line;
     SDL_Color background;
@@ -19,7 +30,5 @@ struct Compass {
 };
 
 void loop(SDL_Renderer *renderer, struct Settings settings);
-
-void movePlayer(struct Player *player, struct Settings settings, int direction);
 
 #endif //CUB_3D_GAME_H

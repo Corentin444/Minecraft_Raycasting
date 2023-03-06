@@ -11,7 +11,7 @@ void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Play
         printf("Error: %s\n", SDL_GetError());
     }
 
-    for (int x; x < settings.width; x++) {
+    for (int x = 0; x < settings.width; x++) {
         double cameraX = 2 * x / (double) settings.width - 1;
         struct DVector rayDir = {player.dir.x + player.plane.x * cameraX, player.dir.y + player.plane.y * cameraX};
 
@@ -63,26 +63,27 @@ void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Play
                 side = 1;
             }
             //Check if ray has hit a wall
-            if (settings.map[map.x][map.y] > 0) hit = 1;
-
-            //Calculate distance projected on camera direction (Euclidean distance would give fisheye effect!)
-            if (side == 0) perpWallDist = (sideDist.x - deltaDist.x);
-            else perpWallDist = (sideDist.y - deltaDist.y);
-
-            //Calculate height of line to draw on screen
-            int lineHeight = (int) (settings.height / perpWallDist);
-
-            //calculate lowest and highest pixel to fill in current stripe
-            int drawStart = -lineHeight / 2 + settings.height / 2;
-            if (drawStart < 0)drawStart = 0;
-            int drawEnd = lineHeight / 2 + settings.height / 2;
-            if (drawEnd >= settings.height)drawEnd = settings.height - 1;
-
-            //draw the pixels of the stripe as a vertical line;
-            SDL_SetRenderDrawColor(renderer, settings.c0.r, settings.c0.g, settings.c0.b, 255);
-            SDL_RenderDrawLine(renderer, x, drawStart, x, drawEnd);
+            if (settings.map[map.y][map.x] != '0') hit = 1;
         }
+
+        //Calculate distance projected on camera direction (Euclidean distance would give fisheye effect!)
+        if (side == 0) perpWallDist = (sideDist.x - deltaDist.x);
+        else perpWallDist = (sideDist.y - deltaDist.y);
+
+        //Calculate height of line to draw on screen
+        int lineHeight = (int) (settings.height / perpWallDist);
+
+        //calculate lowest and highest pixel to fill in current stripe
+        int drawStart = -lineHeight / 2 + settings.height / 2;
+        if (drawStart < 0)drawStart = 0;
+        int drawEnd = lineHeight / 2 + settings.height / 2;
+        if (drawEnd >= settings.height)drawEnd = settings.height - 1;
+
+        //draw the pixels of the stripe as a vertical line;
+        SDL_SetRenderDrawColor(renderer, settings.c1.r, settings.c1.g, settings.c1.b, 255);
+        SDL_RenderDrawLine(renderer, x, drawStart, x, drawEnd);
     }
+
 
     displayMinimap(renderer, settings);
     displayCompass(renderer, player, compass);
@@ -115,12 +116,11 @@ void displayMinimap(SDL_Renderer *renderer, struct Settings settings) {
 }
 
 void displayCompass(SDL_Renderer *renderer, struct Player player, struct Compass compass) {
-    drawCircle(renderer, compass.outline, compass.pos.x, compass.pos.y, compass.size + 5);
-    drawCircle(renderer, compass.background, compass.pos.x, compass.pos.y, compass.size);
+    drawCircle(renderer, compass.outline, compass.pos.x, compass.pos.y, compass.size + 10);
+    drawCircle(renderer, compass.background, compass.pos.x, compass.pos.y, compass.size + 5);
     SDL_SetRenderDrawColor(renderer, compass.line.r, compass.line.g, compass.line.b, 255);
-    struct IVector pos1 = compass.pos;
-    struct IVector pos2 = {(int) (pos1.x + (cos(player.dir.x) * compass.size)), (int) (pos1.y + (sin(player.dir.y) * compass.size))};
-    SDL_RenderDrawLine(renderer, pos1.x, pos1.y, pos2.x, pos2.y);
+    SDL_RenderDrawLine(renderer, compass.pos.x, compass.pos.y, compass.pos.x + (int) (compass.size * player.dir.x),
+                       compass.pos.y + (int) (compass.size * player.dir.y));
 
 }
 

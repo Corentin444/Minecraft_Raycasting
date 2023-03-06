@@ -49,7 +49,8 @@ int parse_config_file(const char *fileName, struct Settings *pSettings) {
 
     for (int i = 0; i < pSettings->nbLines; i++) {
         for (int j = 0; j < pSettings->nbColumns; j++) {
-            map[i][j] = fgetc(file);
+            char c = fgetc(file);
+            map[i][j] = c;
         }
         fgetc(file);
     }

@@ -14,8 +14,9 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
     double time = 0; //time of current frame
     double oldTime; //time of previous frame
 
-    SDL_Event event;
     int quit = 0;
+    SDL_Event event;
+
     while (!quit) {
         //timing for input and FPS counter
         oldTime = time;
@@ -28,9 +29,12 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
         double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
         double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
 
+        int oldX;
+        int newX;
+        int oldY;
+        int newY;
+
         while (SDL_PollEvent(&event)) {
-            printf("player.pos.x = %f, player.pos.y = %f, player.dir.x = %f, player.dir.y = %f, player.plane.x = %f, player.plane.y = %f\n",
-                   player.pos.x, player.pos.y, player.dir.x, player.dir.y, player.plane.x, player.plane.y);
             switch (event.type) {
                 case SDL_QUIT:
                     quit = 1;
@@ -38,29 +42,26 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym) {
                         case SDLK_z:
-                            if (settings.map[(int) (player.pos.x + player.dir.x * moveSpeed)][(int) (player.pos.y)] ==
-                                0)
+                            oldX = (int) (player.pos.x);
+                            oldY = (int) (player.pos.y);
+                            newX = (int) (player.pos.x + player.dir.x * moveSpeed);
+                            newY = (int) (player.pos.y + player.dir.y * moveSpeed);
+                            if (settings.map[oldY][newX] == '0')
                                 player.pos.x += player.dir.x * moveSpeed;
-                            else
-                                printf("Collision detected at x = %d, y = %d",
-                                       (int) (player.pos.x + player.dir.x * moveSpeed), (int) (player.pos.y));
-                            if (settings.map[(int) (player.pos.x)][(int) (player.pos.y + player.dir.y * moveSpeed)] ==
-                                0)
+                            if (settings.map[newY][oldX] == '0')
                                 player.pos.y += player.dir.y * moveSpeed;
-                            else
-                                printf("Collision detected at x = %d, y = %d", (int) (player.pos.x),
-                                       (int) (player.pos.y + player.dir.y * moveSpeed));
                             break;
                         case SDLK_s:
-                            if (settings.map[(int) (player.pos.x - player.dir.x * moveSpeed)][(int) (player.pos.y)] ==
-                                0)
+                            oldX = (int) (player.pos.x);
+                            oldY = (int) (player.pos.y);
+                            newX = (int) (player.pos.x - player.dir.x * moveSpeed);
+                            newY = (int) (player.pos.y - player.dir.y * moveSpeed);
+                            if (settings.map[oldY][newX] == '0')
                                 player.pos.x -= player.dir.x * moveSpeed;
-                            if (settings.map[(int) (player.pos.x)][(int) (player.pos.y - player.dir.y * moveSpeed)] ==
-                                0) {
+                            if (settings.map[newY][oldX] == '0')
                                 player.pos.y -= player.dir.y * moveSpeed;
-                            }
                             break;
-                        case SDLK_q:;//both camera direction and camera plane must be rotated
+                        case SDLK_d:;
                             double oldDirX = player.dir.x;
                             player.dir.x = player.dir.x * cos(-rotSpeed) - player.dir.y * sin(-rotSpeed);
                             player.dir.y = oldDirX * sin(-rotSpeed) + player.dir.y * cos(-rotSpeed);
@@ -68,7 +69,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                             player.plane.x = player.plane.x * cos(-rotSpeed) - player.plane.y * sin(-rotSpeed);
                             player.plane.y = oldPlaneX * sin(-rotSpeed) + player.plane.y * cos(-rotSpeed);
                             break;
-                        case SDLK_d:;//both camera direction and camera plane must be rotated
+                        case SDLK_q:;
                             double oldDirX2 = player.dir.x;
                             player.dir.x = player.dir.x * cos(rotSpeed) - player.dir.y * sin(rotSpeed);
                             player.dir.y = oldDirX2 * sin(rotSpeed) + player.dir.y * cos(rotSpeed);

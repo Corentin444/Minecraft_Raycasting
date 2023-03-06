@@ -16,6 +16,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
 
     int quit = 0;
     SDL_Event event;
+    int display = 1;
 
     while (!quit) {
         //timing for input and FPS counter
@@ -23,7 +24,6 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
         time = clock();
         double frameTime = (time - oldTime) / 1000.0; //frameTime is the time this frame has taken, in seconds
         //printf("%d FPS\n", (int) (1.0 / frameTime)); //FPS counter
-        // print the player information
 
         //speed modifiers
         double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
@@ -61,7 +61,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                             if (settings.map[newY][oldX] == '0')
                                 player.pos.y -= player.dir.y * moveSpeed;
                             break;
-                        case SDLK_d:;
+                        case SDLK_q:;
                             double oldDirX = player.dir.x;
                             player.dir.x = player.dir.x * cos(-rotSpeed) - player.dir.y * sin(-rotSpeed);
                             player.dir.y = oldDirX * sin(-rotSpeed) + player.dir.y * cos(-rotSpeed);
@@ -69,7 +69,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                             player.plane.x = player.plane.x * cos(-rotSpeed) - player.plane.y * sin(-rotSpeed);
                             player.plane.y = oldPlaneX * sin(-rotSpeed) + player.plane.y * cos(-rotSpeed);
                             break;
-                        case SDLK_q:;
+                        case SDLK_d:;
                             double oldDirX2 = player.dir.x;
                             player.dir.x = player.dir.x * cos(rotSpeed) - player.dir.y * sin(rotSpeed);
                             player.dir.y = oldDirX2 * sin(rotSpeed) + player.dir.y * cos(rotSpeed);
@@ -80,6 +80,9 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                         case SDLK_ESCAPE:
                             quit = 1;
                             break;
+                        case SDLK_m:
+                            display = (display + 1) % 2;
+                            break;
                         default:
                             break;
                     }
@@ -88,8 +91,8 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                     break;
             }
         }
-        SDL_Delay(17);
-        displayScreen(renderer, settings, player, compass);
+        SDL_Delay(16);
+        displayScreen(renderer, settings, player, compass, display);
         SDL_RenderPresent(renderer);
     }
 

@@ -5,7 +5,6 @@
 #include "../include/display.h"
 
 void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Player player, struct Compass compass) {
-
     SDL_SetRenderDrawColor(renderer, settings.c0.r, settings.c0.g, settings.c0.b, 255);
     SDL_Rect rect = {0, 0, settings.width, settings.height};
     if (SDL_RenderFillRects(renderer, &rect, 1) != 0) {

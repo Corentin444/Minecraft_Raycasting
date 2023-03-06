@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "game.h"
+#include "SDL2/SDL.h"
 
 void displayMinimap(SDL_Renderer *renderer, struct Settings settings);
 

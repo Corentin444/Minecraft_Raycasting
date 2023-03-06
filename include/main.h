@@ -1,6 +1,8 @@
 #ifndef CUB_3D_MAIN_H
 #define CUB_3D_MAIN_H
 
+#include "SDL2/SDL.h"
+
 struct Settings {
     SDL_Color c0;
     SDL_Color c1;

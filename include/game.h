@@ -2,6 +2,7 @@
 #define CUB_3D_GAME_H
 
 #include "main.h"
+#include "SDL2/SDL.h"
 
 struct DVector {
     double x;

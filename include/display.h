@@ -5,6 +5,7 @@
 #include "game.h"
 #include "SDL2/SDL.h"
 
+
 void displayMinimap(SDL_Renderer *renderer, struct Settings settings);
 
 void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player player);

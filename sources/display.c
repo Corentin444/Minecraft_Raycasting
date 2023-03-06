@@ -130,6 +130,9 @@ void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player player) {
     if (SDL_RenderFillRects(renderer, &rect, 1) != 0) {
         printf("Error: %s\n", SDL_GetError());
     }
+
+    // print the player's angle
+
 }
 
 void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius) {

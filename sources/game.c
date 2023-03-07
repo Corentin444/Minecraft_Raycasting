@@ -16,7 +16,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
 
     int quit = 0;
     SDL_Event event;
-    int display = 1;
+    int display = 0;
 
     while (!quit) {
         //timing for input and FPS counter

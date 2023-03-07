@@ -19,8 +19,10 @@ void fillScreen(SDL_Renderer *renderer, SDL_Color color);
 
 void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius);
 
+void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player player);
+
 double dda(struct DVector deltaDist, struct DVector rayDir, struct Player player,
-           struct Settings settings);
+           struct Settings settings, int *pSide);
 
 struct IVector getStep(struct DVector rayDir);
 

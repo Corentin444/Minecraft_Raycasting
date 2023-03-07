@@ -7,42 +7,50 @@
 void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Player player, struct Compass compass,
                    int display) {
     fillScreen(renderer, settings.c0);
-    displayMinimap(renderer, settings);
-    displayPlayerOnMinimap(renderer, player);
 
     if (display == 0) {
-        for (int x = 0; x < settings.width; x++) {
-            double cameraX = 2 * x / (double) settings.width - 1;
-            struct DVector rayDir = {player.dir.x + player.plane.x * cameraX, player.dir.y + player.plane.y * cameraX};
-
-            //length of ray from one x or y-side to next x or y-side
-            struct DVector deltaDist = {(rayDir.x == 0) ? 1e30 : fabs(1 / rayDir.x),
-                                        (rayDir.y == 0) ? 1e30 : fabs(1 / rayDir.y)};
-            // If rayDirX or rayDirY are 0, the division through zero is avoided by setting it to a very high value 1e30
-            double perpWallDist = dda(deltaDist, rayDir, player, settings);
-
-            //Calculate height of line to draw on screen
-            int lineHeight = (int) (settings.height / perpWallDist);
-
-            //calculate lowest and highest pixel to fill in current stripe
-            int drawStart = -lineHeight / 2 + settings.height / 2;
-            if (drawStart < 0)drawStart = 0;
-            int drawEnd = lineHeight / 2 + settings.height / 2;
-            if (drawEnd >= settings.height)drawEnd = settings.height - 1;
-
-            //draw the pixels of the stripe as a vertical line
-            SDL_SetRenderDrawColor(renderer, settings.c2.r, settings.c2.g, settings.c2.b, 255);
-            SDL_RenderDrawLine(renderer, settings.width - x - 1, 0, settings.width - x - 1, drawStart);
-            SDL_SetRenderDrawColor(renderer, settings.c1.r, settings.c1.g, settings.c1.b, 255);
-            SDL_RenderDrawLine(renderer, settings.width - x - 1, drawStart, settings.width - x - 1, drawEnd);
-            SDL_SetRenderDrawColor(renderer, settings.c0.r, settings.c0.g, settings.c0.b, 255);
-            SDL_RenderDrawLine(renderer, settings.width - x - 1, drawEnd, settings.width - x - 1, settings.height);
-        }
+        displayRays(renderer, settings, player);
     }
 
     displayMinimap(renderer, settings);
-    displayCompass(renderer, player, compass);
     displayPlayerOnMinimap(renderer, player);
+    displayCompass(renderer, player, compass);
+}
+
+void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player player) {
+    for (int x = 0; x < settings.width; x++) {
+        double cameraX = 2 * x / (double) settings.width - 1;
+        struct DVector rayDir = {player.dir.x + player.plane.x * cameraX, player.dir.y + player.plane.y * cameraX};
+
+        //length of ray from one x or y-side to next x or y-side
+        struct DVector deltaDist = {(rayDir.x == 0) ? 1e30 : fabs(1 / rayDir.x),
+                                    (rayDir.y == 0) ? 1e30 : fabs(1 / rayDir.y)};
+
+        int side; //was a NS or an EW wall hit?
+        int *pSide = &side;
+        // If rayDirX or rayDirY are 0, the division through zero is avoided by setting it to a very high value 1e30
+        double perpWallDist = dda(deltaDist, rayDir, player, settings, pSide);
+
+        //Calculate height of line to draw on screen
+        int lineHeight = (int) (settings.height / perpWallDist);
+
+        //calculate lowest and highest pixel to fill in current stripe
+        int drawStart = -lineHeight / 2 + settings.height / 2;
+        if (drawStart < 0)drawStart = 0;
+        int drawEnd = lineHeight / 2 + settings.height / 2;
+        if (drawEnd >= settings.height)drawEnd = settings.height - 1;
+
+        //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+        if (side == 1) SDL_SetRenderDrawColor(renderer, settings.c1.r, settings.c1.g, settings.c1.b, 255);
+        else SDL_SetRenderDrawColor(renderer, settings.c1.r / 2, settings.c1.g / 2, settings.c1.b / 2, 255);
+        SDL_RenderDrawLine(renderer, settings.width - x - 1, drawStart, settings.width - x - 1, drawEnd);
+
+        //draw the pixels of the stripe as a vertical line
+        SDL_SetRenderDrawColor(renderer, settings.c2.r, settings.c2.g, settings.c2.b, 255);
+        SDL_RenderDrawLine(renderer, settings.width - x - 1, 0, settings.width - x - 1, drawStart);
+        SDL_SetRenderDrawColor(renderer, settings.c0.r, settings.c0.g, settings.c0.b, 255);
+        SDL_RenderDrawLine(renderer, settings.width - x - 1, drawEnd, settings.width - x - 1, settings.height);
+    }
 }
 
 struct IVector getStep(struct DVector rayDir) {
@@ -85,9 +93,7 @@ struct DVector geDist(struct Player player, struct DVector rayDir, struct DVecto
 }
 
 double dda(struct DVector deltaDist, struct DVector rayDir, struct Player player,
-           struct Settings settings) {
-
-
+           struct Settings settings, int *pSide) {
     //which box of the map we're in
     struct IVector map = {(int) player.pos.x, (int) player.pos.y};
 
@@ -97,8 +103,7 @@ double dda(struct DVector deltaDist, struct DVector rayDir, struct Player player
     //what direction to step in x or y-direction (either +1 or -1)
     struct IVector step = getStep(rayDir);
 
-    int hit = 0; //was there a wall hit?
-    int side; //was a NS or an EW wall hit?
+    int hit = 0; //was there a wall hit?c
 
     //perform DDA
     while (hit == 0) {
@@ -106,11 +111,11 @@ double dda(struct DVector deltaDist, struct DVector rayDir, struct Player player
         if (sideDist.x < sideDist.y) {
             sideDist.x += deltaDist.x;
             map.x += step.x;
-            side = 0;
+            *pSide = 0;
         } else {
             sideDist.y += deltaDist.y;
             map.y += step.y;
-            side = 1;
+            *pSide = 1;
         }
         //Check if ray has hit a wall
         if (settings.map[map.y][map.x] != '0') hit = 1;
@@ -118,7 +123,7 @@ double dda(struct DVector deltaDist, struct DVector rayDir, struct Player player
 
     //Calculate distance projected on camera direction (Euclidean distance would give fisheye effect!)
     double perpWallDist;
-    if (side == 0) perpWallDist = (sideDist.x - deltaDist.x);
+    if (*pSide == 0) perpWallDist = (sideDist.x - deltaDist.x);
     else perpWallDist = (sideDist.y - deltaDist.y);
 
     return perpWallDist;

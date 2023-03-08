@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdio.h>
 #include <SDL2/SDL.h>
 #include "main.h"
 #include "display.h"
@@ -16,7 +15,6 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
 
     int quit = 0;
     SDL_Event event;
-    int display = 0;
 
     while (!quit) {
         //timing for input and FPS counter
@@ -80,9 +78,6 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                         case SDLK_ESCAPE:
                             quit = 1;
                             break;
-                        case SDLK_m:
-                            display = (display + 1) % 2;
-                            break;
                         default:
                             break;
                     }
@@ -92,9 +87,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
             }
         }
         SDL_Delay(16);
-        displayScreen(renderer, settings, player, compass, display);
+        displayScreen(renderer, settings, player, compass);
         SDL_RenderPresent(renderer);
     }
-
-
 }

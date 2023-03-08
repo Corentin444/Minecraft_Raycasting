@@ -4,14 +4,8 @@
 #include <SDL2/SDL.h>
 #include "../include/display.h"
 
-void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Player player, struct Compass compass,
-                   int display) {
-    fillScreen(renderer, settings.c0);
-
-    if (display == 0) {
-        displayRays(renderer, settings, player);
-    }
-
+void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Player player, struct Compass compass) {
+    displayRays(renderer, settings, player);
     displayMinimap(renderer, settings);
     displayPlayerOnMinimap(renderer, player);
     displayCompass(renderer, player, compass);
@@ -41,14 +35,17 @@ void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player
         if (drawEnd >= settings.height)drawEnd = settings.height - 1;
 
         //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-        if (side == 1) SDL_SetRenderDrawColor(renderer, settings.c1.r, settings.c1.g, settings.c1.b, 255);
-        else SDL_SetRenderDrawColor(renderer, settings.c1.r / 2, settings.c1.g / 2, settings.c1.b / 2, 255);
+        if (side == 1)
+            SDL_SetRenderDrawColor(renderer, settings.c1Color.r, settings.c1Color.g, settings.c1Color.b, 255);
+        else
+            SDL_SetRenderDrawColor(renderer, settings.c1Color.r / 2, settings.c1Color.g / 2, settings.c1Color.b / 2,
+                                   255);
         SDL_RenderDrawLine(renderer, settings.width - x - 1, drawStart, settings.width - x - 1, drawEnd);
 
         //draw the pixels of the stripe as a vertical line
-        SDL_SetRenderDrawColor(renderer, settings.c2.r, settings.c2.g, settings.c2.b, 255);
+        SDL_SetRenderDrawColor(renderer, settings.skyColor.r, settings.skyColor.g, settings.skyColor.b, 255);
         SDL_RenderDrawLine(renderer, settings.width - x - 1, 0, settings.width - x - 1, drawStart);
-        SDL_SetRenderDrawColor(renderer, settings.c0.r, settings.c0.g, settings.c0.b, 255);
+        SDL_SetRenderDrawColor(renderer, settings.groundColor.r, settings.groundColor.g, settings.groundColor.b, 255);
         SDL_RenderDrawLine(renderer, settings.width - x - 1, drawEnd, settings.width - x - 1, settings.height);
     }
 }
@@ -135,13 +132,14 @@ void displayMinimap(SDL_Renderer *renderer, struct Settings settings) {
             char c = settings.map[y][x];
             switch (c) {
                 case '0':
-                    SDL_SetRenderDrawColor(renderer, settings.c0.r, settings.c0.g, settings.c0.b, 255);
+                    SDL_SetRenderDrawColor(renderer, settings.groundColor.r, settings.groundColor.g,
+                                           settings.groundColor.b, 255);
                     break;
                 case '1':
-                    SDL_SetRenderDrawColor(renderer, settings.c1.r, settings.c1.g, settings.c1.b, 255);
+                    SDL_SetRenderDrawColor(renderer, settings.c1Color.r, settings.c1Color.g, settings.c1Color.b, 255);
                     break;
                 case '2':
-                    SDL_SetRenderDrawColor(renderer, settings.c2.r, settings.c2.g, settings.c2.b, 255);
+                    SDL_SetRenderDrawColor(renderer, settings.c2Color.r, settings.c2Color.g, settings.c2Color.b, 255);
                     break;
                 default:
                     break;
@@ -177,11 +175,6 @@ void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player player) {
     int x2 = x1 + (int) (30 * (player.dir.x));
     int y2 = y1 + (int) (30 * player.dir.y);
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-}
-
-void fillScreen(SDL_Renderer *renderer, SDL_Color color) {
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderClear(renderer);
 }
 
 void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius) {

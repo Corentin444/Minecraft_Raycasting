@@ -2,25 +2,8 @@
 #define CUB_3D_GAME_H
 
 #include "main.h"
+#include "utils.h"
 #include "SDL2/SDL.h"
-
-struct DVector {
-    double x;
-    double y;
-};
-
-struct IVector {
-    int x;
-    int y;
-};
-
-struct Player {
-    struct DVector pos;
-    struct DVector dir;
-    struct DVector plane;
-    double speed;
-    double rotationSpeed;
-};
 
 struct Compass {
     struct IVector pos;

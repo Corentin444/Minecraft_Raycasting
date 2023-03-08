@@ -3,19 +3,16 @@
 
 #include "main.h"
 #include "game.h"
+#include "player.h"
 #include "SDL2/SDL.h"
-
 
 void displayMinimap(SDL_Renderer *renderer, struct Settings settings);
 
 void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player player);
 
-void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Player player, struct Compass compass,
-                   int display);
+void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Player player, struct Compass compass);
 
 void displayCompass(SDL_Renderer *renderer, struct Player player, struct Compass compass);
-
-void fillScreen(SDL_Renderer *renderer, SDL_Color color);
 
 void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius);
 

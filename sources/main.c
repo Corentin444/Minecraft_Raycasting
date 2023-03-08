@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include "../include/main.h"
-#include "../include/parser.h"
 #include "game.h"
 
 SDL_Window *window;
@@ -9,8 +8,12 @@ SDL_Renderer *renderer;
 
 int main(int argc, char *argv[]) {
     struct Settings settings;
-    if (parse_config_file("config.txt", &settings) == EXIT_FAILURE) {
+    if (parseSettingsFile("settings.txt", &settings) == EXIT_FAILURE) {
         fprintf(stderr, "Error: cannot parse the config file\n");
+        return -1;
+    }
+    if (parseMapFile("./data/map2.txt", &settings) == EXIT_FAILURE) {
+        fprintf(stderr, "Error: cannot parse the map file\n");
         return -1;
     }
 

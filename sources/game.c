@@ -4,8 +4,6 @@
 #include "display.h"
 #include "game.h"
 #include <time.h>
-#include <stdio.h>
-#include "SDL2/SDL_image.h"
 
 void loop(SDL_Renderer *renderer, struct Settings settings) {
     struct Player player = {{5, 5}, {-1, 0}, {0, 0.66}, 0.1, 0.05};
@@ -96,27 +94,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
             }
         }
         SDL_Delay(16);
-        displayScreen(renderer, settings, player, compass);
+        displayScreen(renderer, &settings, &player, &compass);
         SDL_RenderPresent(renderer);
     }
-}
-
-SDL_Texture *loadTexture(const char path[], SDL_Renderer *renderer)
-{
-    SDL_Surface *tmp = NULL;
-    SDL_Texture *texture = NULL;
-    tmp = SDL_LoadBMP(path);
-    if(NULL == tmp)
-    {
-        fprintf(stderr, "Erreur SDL_LoadBMP : %s", SDL_GetError());
-        return NULL;
-    }
-    texture = SDL_CreateTextureFromSurface(renderer, tmp);
-    SDL_FreeSurface(tmp);
-    if(NULL == texture)
-    {
-        fprintf(stderr, "Erreur SDL_CreateTextureFromSurface : %s", SDL_GetError());
-        return NULL;
-    }
-    return texture;
 }

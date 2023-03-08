@@ -15,6 +15,4 @@ struct Compass {
 
 void loop(SDL_Renderer *renderer, struct Settings settings);
 
-SDL_Texture *loadTexture(const char path[], SDL_Renderer *renderer);
-
 #endif //CUB_3D_GAME_H

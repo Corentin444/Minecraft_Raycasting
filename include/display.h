@@ -12,23 +12,23 @@ struct DDAResult {
     int side;
 };
 
-void displayMinimap(SDL_Renderer *renderer, struct Settings settings);
+void displayMinimap(SDL_Renderer *renderer, struct Settings *settings);
 
-void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player player);
+void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player *player);
 
-void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Player player, struct Compass compass);
+void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass);
 
-void displayCompass(SDL_Renderer *renderer, struct Player player, struct Compass compass);
+void displayCompass(SDL_Renderer *renderer, struct Player *player, struct Compass *compass);
 
 void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius);
 
-void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player player);
+void displayRays(SDL_Renderer *renderer, struct Settings *settings, struct Player *player);
 
 struct DDAResult
-dda(struct DVector deltaDist, struct DVector rayDir, struct Player player, struct Settings settings);
+dda(struct DVector deltaDist, struct DVector rayDir, struct Player *player, struct Settings *settings);
 
 struct IVector getStep(struct DVector rayDir);
 
-struct DVector geDist(struct Player player, struct DVector rayDir, struct DVector deltaDist);
+struct DVector geDist(struct Player *player, struct DVector rayDir, struct DVector deltaDist);
 
 #endif //CUB_3D_DISPLAY_H

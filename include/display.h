@@ -6,6 +6,12 @@
 #include "player.h"
 #include "SDL2/SDL.h"
 
+struct DDAResult {
+    struct IVector mapPos;
+    double perpWallDist;
+    int side;
+};
+
 void displayMinimap(SDL_Renderer *renderer, struct Settings settings);
 
 void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player player);
@@ -18,8 +24,8 @@ void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radiu
 
 void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player player);
 
-double dda(struct DVector deltaDist, struct DVector rayDir, struct Player player,
-           struct Settings settings, int *pSide);
+struct DDAResult
+dda(struct DVector deltaDist, struct DVector rayDir, struct Player player, struct Settings settings);
 
 struct IVector getStep(struct DVector rayDir);
 

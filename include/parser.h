@@ -13,7 +13,10 @@ struct Settings {
     int height;
     int nbLines;
     int nbColumns;
+    int texWidth;
+    int texHeight;
     char **map;
+    Uint32 textures[8][64 * 64];
 };
 
 int parseSettingsFile(const char *fileName, struct Settings *pSettings);

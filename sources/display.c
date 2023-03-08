@@ -12,6 +12,8 @@ void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Play
 }
 
 void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player player) {
+    Uint32 buffer[settings.height][settings.width];
+
     for (int x = 0; x < settings.width; x++) {
         double cameraX = 2 * x / (double) settings.width - 1;
         struct DVector rayDir = {player.dir.x + player.plane.x * cameraX, player.dir.y + player.plane.y * cameraX};
@@ -20,10 +22,9 @@ void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player
         struct DVector deltaDist = {(rayDir.x == 0) ? 1e30 : fabs(1 / rayDir.x),
                                     (rayDir.y == 0) ? 1e30 : fabs(1 / rayDir.y)};
 
-        int side; //was a NS or an EW wall hit?
-        int *pSide = &side;
         // If rayDirX or rayDirY are 0, the division through zero is avoided by setting it to a very high value 1e30
-        double perpWallDist = dda(deltaDist, rayDir, player, settings, pSide);
+        struct DDAResult ddaResult = dda(deltaDist, rayDir, player, settings);
+        double perpWallDist = ddaResult.perpWallDist;
 
         //Calculate height of line to draw on screen
         int lineHeight = (int) (settings.height / perpWallDist);
@@ -34,19 +35,31 @@ void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player
         int drawEnd = lineHeight / 2 + settings.height / 2;
         if (drawEnd >= settings.height)drawEnd = settings.height - 1;
 
-        //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-        if (side == 1)
-            SDL_SetRenderDrawColor(renderer, settings.c1Color.r, settings.c1Color.g, settings.c1Color.b, 255);
-        else
-            SDL_SetRenderDrawColor(renderer, settings.c1Color.r / 2, settings.c1Color.g / 2, settings.c1Color.b / 2,
-                                   255);
-        SDL_RenderDrawLine(renderer, settings.width - x - 1, drawStart, settings.width - x - 1, drawEnd);
+        int texNum = settings.map[ddaResult.mapPos.x][ddaResult.mapPos.y] - 1;
+        //calculate value of wallX
+        double wallX; //where exactly the wall was hit
+        if (ddaResult.side == 0) wallX = player.pos.y + perpWallDist * rayDir.y;
+        else wallX = player.pos.x + perpWallDist * rayDir.x;
+        wallX -= floor((wallX));
 
-        //draw the pixels of the stripe as a vertical line
-        SDL_SetRenderDrawColor(renderer, settings.skyColor.r, settings.skyColor.g, settings.skyColor.b, 255);
-        SDL_RenderDrawLine(renderer, settings.width - x - 1, 0, settings.width - x - 1, drawStart);
-        SDL_SetRenderDrawColor(renderer, settings.groundColor.r, settings.groundColor.g, settings.groundColor.b, 255);
-        SDL_RenderDrawLine(renderer, settings.width - x - 1, drawEnd, settings.width - x - 1, settings.height);
+        //x coordinate on the texture
+        int texX = (int) (wallX * (double) settings.texWidth);
+        if (ddaResult.side == 0 && rayDir.x > 0) texX = settings.texWidth - texX - 1;
+        if (ddaResult.side == 1 && rayDir.y < 0) texX = settings.texWidth - texX - 1;
+
+        // How much to increase the texture coordinate per screen pixel
+        double step = 1.0 * settings.texHeight / lineHeight;
+        // Starting texture coordinate
+        double texPos = ((double) (drawStart - settings.height) / 2 + (double) lineHeight / 2) * step;
+        for (int y = drawStart; y < drawEnd; y++) {
+            // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+            int texY = (int) texPos & (settings.texHeight - 1);
+            texPos += step;
+            Uint32 color = settings.textures[texNum][settings.texHeight * texY + texX];
+            //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+            if (ddaResult.side == 1) color = (color >> 1) & 8355711;
+            buffer[y][x] = color;
+        }
     }
 }
 
@@ -89,10 +102,10 @@ struct DVector geDist(struct Player player, struct DVector rayDir, struct DVecto
     return sideDist;
 }
 
-double dda(struct DVector deltaDist, struct DVector rayDir, struct Player player,
-           struct Settings settings, int *pSide) {
+struct DDAResult dda(struct DVector deltaDist, struct DVector rayDir, struct Player player,
+                     struct Settings settings) {
     //which box of the map we're in
-    struct IVector map = {(int) player.pos.x, (int) player.pos.y};
+    struct IVector mapPos = {(int) player.pos.x, (int) player.pos.y};
 
     //length of ray from current position to next x or y-side
     struct DVector sideDist = geDist(player, rayDir, deltaDist);
@@ -100,30 +113,33 @@ double dda(struct DVector deltaDist, struct DVector rayDir, struct Player player
     //what direction to step in x or y-direction (either +1 or -1)
     struct IVector step = getStep(rayDir);
 
-    int hit = 0; //was there a wall hit?c
+    int hit = 0; //was there a wall hit?
+    int side; //was a NS or a EW wall hit?
 
     //perform DDA
     while (hit == 0) {
-        //jump to next map square, either in x-direction, or in y-direction
+        //jump to next mapPos square, either in x-direction, or in y-direction
         if (sideDist.x < sideDist.y) {
             sideDist.x += deltaDist.x;
-            map.x += step.x;
-            *pSide = 0;
+            mapPos.x += step.x;
+            side = 0;
         } else {
             sideDist.y += deltaDist.y;
-            map.y += step.y;
-            *pSide = 1;
+            mapPos.y += step.y;
+            side = 1;
         }
         //Check if ray has hit a wall
-        if (settings.map[map.y][map.x] != '0') hit = 1;
+        if (settings.map[mapPos.y][mapPos.x] != '0') hit = 1;
     }
 
     //Calculate distance projected on camera direction (Euclidean distance would give fisheye effect!)
     double perpWallDist;
-    if (*pSide == 0) perpWallDist = (sideDist.x - deltaDist.x);
+    if (side == 0) perpWallDist = (sideDist.x - deltaDist.x);
     else perpWallDist = (sideDist.y - deltaDist.y);
 
-    return perpWallDist;
+    struct DDAResult ddaResult = {mapPos, perpWallDist, side};
+
+    return ddaResult;
 }
 
 void displayMinimap(SDL_Renderer *renderer, struct Settings settings) {

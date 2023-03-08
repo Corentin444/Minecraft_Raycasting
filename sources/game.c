@@ -10,6 +10,24 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
     int size = 30;
     struct Compass compass = {{settings.width - size - 10, size + 9}, size, {255, 0, 0}, {120, 120, 120}, {45, 45, 45}};
 
+    for (int x = 0; x < settings.texWidth; x++) {
+        for (int y = 0; y < settings.texHeight; y++) {
+            int xorcolor = (x * 256 / settings.texWidth) ^ (y * 256 / settings.texHeight);
+            //int xcolor = x * 256 / texWidth;
+            int ycolor = y * 256 / settings.texHeight;
+            int xycolor = y * 128 / settings.texHeight + x * 128 / settings.texWidth;
+            settings.textures[0][settings.texWidth * y + x] =
+                    65536 * 254 * (x != y && x != settings.texWidth - y); //flat red texture with black cross
+            settings.textures[1][settings.texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
+            settings.textures[2][settings.texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
+            settings.textures[3][settings.texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
+            settings.textures[4][settings.texWidth * y + x] = 256 * xorcolor; //xor green
+            settings.textures[5][settings.texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
+            settings.textures[6][settings.texWidth * y + x] = 65536 * ycolor; //red gradient
+            settings.textures[7][settings.texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
+        }
+    }
+
     double time = 0; //time of current frame
     double oldTime; //time of previous frame
 

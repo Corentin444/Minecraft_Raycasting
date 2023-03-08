@@ -79,6 +79,8 @@ int parseMapFile(const char *fileName, struct Settings *pSettings) {
         }
     }
     pSettings->map = map;
+    pSettings->texWidth = 64;
+    pSettings->texHeight = 64;
 
     fclose(file);
     return EXIT_SUCCESS;

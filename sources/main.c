@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Error: cannot parse the config file\n");
         return -1;
     }
-    if (parseMapFile("./data/map1.txt", &settings) == EXIT_FAILURE) {
+    if (parseMapFile("./data/map2.txt", &settings) == EXIT_FAILURE) {
         fprintf(stderr, "Error: cannot parse the map file\n");
         return -1;
     }

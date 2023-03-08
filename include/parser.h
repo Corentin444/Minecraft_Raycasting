@@ -5,7 +5,7 @@
 #include "SDL2/SDL.h"
 
 struct Settings {
-    SDL_Color groundColor;
+    SDL_Color floorColor;
     SDL_Color skyColor;
     SDL_Color c1Color;
     SDL_Color c2Color;

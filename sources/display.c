@@ -4,6 +4,13 @@
 #include <SDL2/SDL.h>
 #include "../include/display.h"
 
+SDL_Color RGB_Red = {255, 0, 0, 255};
+SDL_Color RGB_Green = {0, 255, 0, 255};
+SDL_Color RGB_Blue = {0, 0, 255, 255};
+SDL_Color RGB_White = {255, 255, 255, 255};
+SDL_Color RGB_Black = {0, 0, 0, 255};
+SDL_Color RGB_Grey = {128, 128, 128, 255};
+
 void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass) {
     displayRays(renderer, settings, player);
     displayMinimap(renderer, settings);
@@ -12,8 +19,6 @@ void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Pla
 }
 
 void displayRays(SDL_Renderer *renderer, struct Settings *settings, struct Player *player) {
-    // malloc the buffer
-    Uint32 (*buffer)[settings->width] = malloc(sizeof *buffer * settings->height);
     for (int x = 0; x < settings->width; x++) {
         double cameraX = 2 * x / (double) settings->width - 1;
         struct DVector rayDir = {player->dir.x + player->plane.x * cameraX, player->dir.y + player->plane.y * cameraX};
@@ -35,42 +40,27 @@ void displayRays(SDL_Renderer *renderer, struct Settings *settings, struct Playe
         int drawEnd = lineHeight / 2 + settings->height / 2;
         if (drawEnd >= settings->height)drawEnd = settings->height - 1;
 
-        int texNum = settings->map[ddaResult.mapPos.x][ddaResult.mapPos.y] - 1;
-        //calculate value of wallX
-        double wallX; //where exactly the wall was hit
-        if (ddaResult.side == 0) wallX = player->pos.y + perpWallDist * rayDir.y;
-        else wallX = player->pos.x + perpWallDist * rayDir.x;
-        wallX -= floor((wallX));
+        //choose wall color
+        SDL_Color color = RGB_Grey;
 
-        //x coordinate on the texture
-        int texX = (int) (wallX * (double) settings->texWidth);
-        if (ddaResult.side == 0 && rayDir.x > 0) texX = settings->texWidth - texX - 1;
-        if (ddaResult.side == 1 && rayDir.y < 0) texX = settings->texWidth - texX - 1;
+        //give x and y sides different brightness
+        if (ddaResult.side == 1) {
+            color.r = color.r / 2;
+            color.g = color.g / 2;
+            color.b = color.b / 2;
+        }
 
-        // How much to increase the texture coordinate per screen pixel
-        double step = 1.0 * settings->texHeight / lineHeight;
-        // Starting texture coordinate
-        double texPos = ((double) (drawStart - settings->height) / 2 + (double) lineHeight / 2) * step;
-        for (int y = drawStart; y < drawEnd; y++) {
-            // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-            int texY = (int) texPos & (settings->texHeight - 1);
-            texPos += step;
-            // get the color from the texture
-            //Uint32 color = texture[texNum][texHeight * texY + texX];
-            Uint32 color = 1684300800;
-            //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-            if (ddaResult.side == 1) color = (color >> 1) & 8355711;
-            buffer[y][x] = color;
-        }
+        int xx = settings->width - x - 1;
+        //draw the pixels of the stripe as a vertical line
+        SDL_SetRenderDrawColor(renderer, settings->skyColor.r, settings->skyColor.g, settings->skyColor.b,
+                               settings->skyColor.a);
+        SDL_RenderDrawLine(renderer, xx, 0, xx, drawStart);
+        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+        SDL_RenderDrawLine(renderer, xx, drawStart, xx, drawEnd);
+        SDL_SetRenderDrawColor(renderer, settings->floorColor.r, settings->floorColor.g, settings->floorColor.b,
+                               settings->floorColor.a);
+        SDL_RenderDrawLine(renderer, xx, drawEnd, xx, settings->height);
     }
-    for (int y = 0; y < settings->height; y++) {
-        for (int x = 0; x < settings->width; x++) {
-            SDL_SetRenderDrawColor(renderer, (buffer[y][x] >> 24) & 0xFF, (buffer[y][x] >> 16) & 0xFF,
-                                   (buffer[y][x] >> 8) & 0xFF, buffer[y][x] & 0xFF);
-            SDL_RenderDrawPoint(renderer, settings->width - x - 1, y);
-        }
-    }
-    free(buffer);
 }
 
 struct IVector getStep(struct DVector rayDir) {
@@ -153,25 +143,31 @@ struct DDAResult dda(struct DVector deltaDist, struct DVector rayDir, struct Pla
 }
 
 void displayMinimap(SDL_Renderer *renderer, struct Settings *settings) {
+    int edge = 5;
+    SDL_SetRenderDrawColor(renderer, RGB_Black.r, RGB_Black.g, RGB_Black.b, 255);
+    SDL_Rect rect = {0, 0, settings->nbColumns * 10 + 2*edge, settings->nbLines * 10 + 2*edge};
+    SDL_RenderFillRect(renderer, &rect);
     for (int y = 0; y < settings->nbLines; y++) {
         for (int x = 0; x < settings->nbColumns; x++) {
             char c = settings->map[y][x];
             switch (c) {
                 case '0':
-                    SDL_SetRenderDrawColor(renderer, settings->groundColor.r, settings->groundColor.g,
-                                           settings->groundColor.b, 255);
+                    SDL_SetRenderDrawColor(renderer, settings->floorColor.r, settings->floorColor.g,
+                                           settings->floorColor.b, 255);
                     break;
                 case '1':
-                    SDL_SetRenderDrawColor(renderer, settings->c1Color.r, settings->c1Color.g, settings->c1Color.b, 255);
+                    SDL_SetRenderDrawColor(renderer, settings->c1Color.r, settings->c1Color.g, settings->c1Color.b,
+                                           255);
                     break;
                 case '2':
-                    SDL_SetRenderDrawColor(renderer, settings->c2Color.r, settings->c2Color.g, settings->c2Color.b, 255);
+                    SDL_SetRenderDrawColor(renderer, settings->c2Color.r, settings->c2Color.g, settings->c2Color.b,
+                                           255);
                     break;
                 default:
                     break;
             }
-            SDL_Rect rect = {x * 10, y * 10, 10, 10};
-            if (SDL_RenderFillRects(renderer, &rect, 1) != 0) {
+            SDL_Rect rectt = {x * 10 + edge, y * 10 + edge, 10, 10};
+            if (SDL_RenderFillRects(renderer, &rectt, 1) != 0) {
                 printf("Error: %s\n", SDL_GetError());
             }
         }

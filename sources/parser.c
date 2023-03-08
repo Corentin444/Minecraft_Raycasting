@@ -13,8 +13,8 @@ int parseSettingsFile(const char *fileName, struct Settings *pSettings) {
     int r, g, b;
     fscanf(file, "%*s %*s %d %d %d", &r, &g, &b);
     if (checkRgbValues(r, g, b) == EXIT_SUCCESS) {
-        SDL_Color groundColor = {r, g, b, 255};
-        pSettings->groundColor = groundColor;
+        SDL_Color floorColor = {r, g, b, 255};
+        pSettings->floorColor = floorColor;
     } else {
         return EXIT_FAILURE;
     }
@@ -119,7 +119,6 @@ int setNbLinesAndNbColumns(const char *fileName, struct Settings *pSettings) {
         }
     }
 
-    printf("nbLines: %d, nbColumns: %d\n", nbLines, nbColumns);
     pSettings->nbLines = nbLines;
     pSettings->nbColumns = nbColumns;
 

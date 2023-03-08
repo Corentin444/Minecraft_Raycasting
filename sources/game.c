@@ -27,6 +27,11 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
             settings.textures[7][settings.texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
         }
     }
+    for(size_t i = 0; i < 8; i++)
+        for(size_t x = 0; x < settings.texWidth; x++)
+            for(size_t y = 0; y < x; y++)
+                // swap the values of the textures
+                settings.textures[i][settings.texWidth * y + x] = settings.textures[i][settings.texWidth * x + y];
 
     double time = 0; //time of current frame
     double oldTime; //time of previous frame

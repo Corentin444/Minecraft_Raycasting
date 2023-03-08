@@ -12,8 +12,8 @@ void displayScreen(SDL_Renderer *renderer, struct Settings settings, struct Play
 }
 
 void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player player) {
-    Uint32 buffer[settings.height][settings.width];
-
+    // malloc the buffer
+    Uint32 (*buffer)[settings.width] = malloc(sizeof *buffer * settings.height);
     for (int x = 0; x < settings.width; x++) {
         double cameraX = 2 * x / (double) settings.width - 1;
         struct DVector rayDir = {player.dir.x + player.plane.x * cameraX, player.dir.y + player.plane.y * cameraX};
@@ -55,12 +55,20 @@ void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player
             // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
             int texY = (int) texPos & (settings.texHeight - 1);
             texPos += step;
-            Uint32 color = settings.textures[texNum][settings.texHeight * texY + texX];
+            Uint32 color = settings.textures[texNum][settings.texHeight * texX + texY];
             //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
             if (ddaResult.side == 1) color = (color >> 1) & 8355711;
             buffer[y][x] = color;
         }
     }
+    for (int y = 0; y < settings.height; y++) {
+        for (int x = 0; x < settings.width; x++) {
+            SDL_SetRenderDrawColor(renderer, (buffer[y][x] >> 24) & 0xFF, (buffer[y][x] >> 16) & 0xFF,
+                                   (buffer[y][x] >> 8) & 0xFF, buffer[y][x] & 0xFF);
+            SDL_RenderDrawPoint(renderer, settings.width - x - 1, y);
+        }
+    }
+    free(buffer);
 }
 
 struct IVector getStep(struct DVector rayDir) {

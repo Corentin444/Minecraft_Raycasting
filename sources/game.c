@@ -4,6 +4,8 @@
 #include "display.h"
 #include "game.h"
 #include <time.h>
+#include <stdio.h>
+#include "SDL2/SDL_image.h"
 
 void loop(SDL_Renderer *renderer, struct Settings settings) {
     struct Player player = {{5, 5}, {-1, 0}, {0, 0.66}, 0.1, 0.05};
@@ -12,26 +14,10 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
 
     for (int x = 0; x < settings.texWidth; x++) {
         for (int y = 0; y < settings.texHeight; y++) {
-            int xorcolor = (x * 256 / settings.texWidth) ^ (y * 256 / settings.texHeight);
-            //int xcolor = x * 256 / texWidth;
-            int ycolor = y * 256 / settings.texHeight;
-            int xycolor = y * 128 / settings.texHeight + x * 128 / settings.texWidth;
-            settings.textures[0][settings.texWidth * y + x] =
-                    65536 * 254 * (x != y && x != settings.texWidth - y); //flat red texture with black cross
-            settings.textures[1][settings.texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
-            settings.textures[2][settings.texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
-            settings.textures[3][settings.texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
-            settings.textures[4][settings.texWidth * y + x] = 256 * xorcolor; //xor green
-            settings.textures[5][settings.texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
-            settings.textures[6][settings.texWidth * y + x] = 65536 * ycolor; //red gradient
-            settings.textures[7][settings.texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
+            settings.textures[0][settings.texWidth * y + x] = 1684300800; //red bricks
+            settings.textures[1][settings.texWidth * y + x] = 4242210816; //red gradient
         }
     }
-    for(size_t i = 0; i < 8; i++)
-        for(size_t x = 0; x < settings.texWidth; x++)
-            for(size_t y = 0; y < x; y++)
-                // swap the values of the textures
-                settings.textures[i][settings.texWidth * y + x] = settings.textures[i][settings.texWidth * x + y];
 
     double time = 0; //time of current frame
     double oldTime; //time of previous frame
@@ -113,4 +99,24 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
         displayScreen(renderer, settings, player, compass);
         SDL_RenderPresent(renderer);
     }
+}
+
+SDL_Texture *loadTexture(const char path[], SDL_Renderer *renderer)
+{
+    SDL_Surface *tmp = NULL;
+    SDL_Texture *texture = NULL;
+    tmp = SDL_LoadBMP(path);
+    if(NULL == tmp)
+    {
+        fprintf(stderr, "Erreur SDL_LoadBMP : %s", SDL_GetError());
+        return NULL;
+    }
+    texture = SDL_CreateTextureFromSurface(renderer, tmp);
+    SDL_FreeSurface(tmp);
+    if(NULL == texture)
+    {
+        fprintf(stderr, "Erreur SDL_CreateTextureFromSurface : %s", SDL_GetError());
+        return NULL;
+    }
+    return texture;
 }

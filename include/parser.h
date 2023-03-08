@@ -16,7 +16,7 @@ struct Settings {
     int texWidth;
     int texHeight;
     char **map;
-    Uint32 textures[8][64 * 64];
+    Uint32 textures[2][64 * 64];
 };
 
 int parseSettingsFile(const char *fileName, struct Settings *pSettings);

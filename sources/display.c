@@ -55,12 +55,16 @@ void displayRays(SDL_Renderer *renderer, struct Settings settings, struct Player
             // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
             int texY = (int) texPos & (settings.texHeight - 1);
             texPos += step;
-            Uint32 color = settings.textures[texNum][settings.texHeight * texX + texY];
+            // get the color from the texture
+            Uint32 color = settings.textures[texNum][0];
             //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
             if (ddaResult.side == 1) color = (color >> 1) & 8355711;
             buffer[y][x] = color;
         }
     }
+    Uint32 color = settings.textures[0][0];
+    printf("color : %d\n", color);
+    printf("r : %d g : %d b : %d a : %d\n", (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
     for (int y = 0; y < settings.height; y++) {
         for (int x = 0; x < settings.width; x++) {
             SDL_SetRenderDrawColor(renderer, (buffer[y][x] >> 24) & 0xFF, (buffer[y][x] >> 16) & 0xFF,

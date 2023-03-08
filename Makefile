@@ -1,7 +1,7 @@
 SRC = sources/main.c sources/parser.c sources/game.c sources/display.c sources/player.c
 CC = gcc
 CFLAGS = -Wall -I include
-LDFLAGS = -L libs -lmingw32 -lSDL2main -lSDL2 -mwindows -mconsole
+LDFLAGS = -L libs -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -mwindows -mconsole
 
 all : CUB_3D
 

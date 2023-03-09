@@ -7,14 +7,18 @@
 
 SDL_Color RGB_Black = {0, 0, 0, 255};
 
-void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass, SDL_Texture *texture) {
-    displayRaysWithTexture(renderer, settings, player, texture);
+void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass,
+                   SDL_Texture *texture, int displayRays) {
+    SDL_SetRenderDrawColor(renderer, RGB_Black.r, RGB_Black.g, RGB_Black.b, RGB_Black.a);
+    SDL_RenderClear(renderer);
+    if (displayRays) displayRaysWithTexture(renderer, settings, player, texture);
     displayMinimap(renderer, settings);
     displayPlayerOnMinimap(renderer, player);
     displayCompass(renderer, player, compass);
 }
 
-void displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, SDL_Texture *texture) {
+void
+displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, SDL_Texture *texture) {
     Uint32 (*pixels)[settings->width] = malloc(sizeof(int[settings->height][settings->width]));
     memset(pixels, 255, settings->width * settings->height * sizeof(Uint32));
     for (int x = 0; x < settings->width; x++) {
@@ -165,23 +169,11 @@ void displayMinimap(SDL_Renderer *renderer, struct Settings *settings) {
     SDL_RenderFillRect(renderer, &rect);
     for (int y = 0; y < settings->nbLines; y++) {
         for (int x = 0; x < settings->nbColumns; x++) {
-            int n = settings->map[y][x];
-            switch (n) {
-                case 0:
-                    SDL_SetRenderDrawColor(renderer, settings->floorColor.r, settings->floorColor.g,
-                                           settings->floorColor.b, 255);
-                    break;
-                case 1:
-                    SDL_SetRenderDrawColor(renderer, settings->c1Color.r, settings->c1Color.g, settings->c1Color.b,
-                                           255);
-                    break;
-                case 2:
-                    SDL_SetRenderDrawColor(renderer, settings->c2Color.r, settings->c2Color.g, settings->c2Color.b,
-                                           255);
-                    break;
-                default:
-                    break;
-            }
+            int texNum = settings->map[y][x];
+            int r = texNum * (256 / 8);
+            int g = texNum * (256 / 8);
+            int b = texNum * (256 / 8);
+            SDL_SetRenderDrawColor(renderer, r, g, b, 255);
             SDL_Rect rectt = {x * 10 + edge, y * 10 + edge, 10, 10};
             if (SDL_RenderFillRects(renderer, &rectt, 1) != 0) {
                 printf("Error: %s\n", SDL_GetError());

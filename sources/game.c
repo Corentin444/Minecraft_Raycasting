@@ -37,6 +37,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
 
     int quit = 0;
     SDL_Event event;
+    int displayRays = 0;
 
     while (!quit) {
         //timing for input and FPS counter
@@ -97,6 +98,9 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                             player.plane.x = player.plane.x * cos(rotSpeed) - player.plane.y * sin(rotSpeed);
                             player.plane.y = oldPlaneX2 * sin(rotSpeed) + player.plane.y * cos(rotSpeed);
                             break;
+                        case SDLK_m:
+                            displayRays = !displayRays;
+                            break;
                         case SDLK_ESCAPE:
                             quit = 1;
                             break;
@@ -109,7 +113,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
             }
         }
         SDL_Delay(16);
-        displayScreen(renderer, &settings, &player, &compass, texture);
+        displayScreen(renderer, &settings, &player, &compass, texture, displayRays);
         SDL_RenderPresent(renderer);
     }
 }

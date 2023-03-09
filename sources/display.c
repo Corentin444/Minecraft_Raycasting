@@ -2,6 +2,7 @@
 #include <math.h>
 #include <game.h>
 #include <SDL2/SDL.h>
+#include <string.h>
 #include "../include/display.h"
 
 SDL_Color RGB_Red = {255, 0, 0, 255};
@@ -12,11 +13,75 @@ SDL_Color RGB_Black = {0, 0, 0, 255};
 SDL_Color RGB_Grey = {128, 128, 128, 255};
 
 void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass) {
-    displayRays(renderer, settings, player);
+    //displayRays(renderer, settings, player);
+    displayRaysWithTexture(renderer, settings, player);
     displayMinimap(renderer, settings);
     displayPlayerOnMinimap(renderer, player);
     displayCompass(renderer, player, compass);
 }
+
+void displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player) {
+    SDL_Texture *texture = SDL_CreateTexture(renderer,
+                                             SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, settings->width,
+                                             settings->height);
+    Uint32 (*pixels)[settings->width] = malloc(sizeof(int[settings->height][settings->width]));
+    memset(pixels, 255, settings->width * settings->height * sizeof(Uint32));
+    for (int x = 0; x < settings->width; x++) {
+        double cameraX = 2 * x / (double) settings->width - 1;
+        struct DVector rayDir = {player->dir.x + player->plane.x * cameraX, player->dir.y + player->plane.y * cameraX};
+
+        //length of ray from one x or y-side to next x or y-side
+        struct DVector deltaDist = {(rayDir.x == 0) ? 1e30 : fabs(1 / rayDir.x),
+                                    (rayDir.y == 0) ? 1e30 : fabs(1 / rayDir.y)};
+
+        // If rayDirX or rayDirY are 0, the division through zero is avoided by setting it to a very high value 1e30
+        struct DDAResult ddaResult = dda(deltaDist, rayDir, player, settings);
+        double perpWallDist = ddaResult.perpWallDist;
+
+        //Calculate height of line to draw on screen
+        int lineHeight = (int) (settings->height / perpWallDist);
+
+        //calculate lowest and highest pixel to fill in current stripe
+        int drawStart = -lineHeight / 2 + settings->height / 2;
+        if (drawStart < 0)drawStart = 0;
+        int drawEnd = lineHeight / 2 + settings->height / 2;
+        if (drawEnd >= settings->height)drawEnd = settings->height - 1;
+
+        //texturing calculations
+        int texNum = settings->map[ddaResult.mapPos.x][ddaResult.mapPos.y] - 1; //1 subtracted from it so that texture 0 can be used!
+
+        //calculate value of wallX
+        double wallX; //where exactly the wall was hit
+        if (ddaResult.side == 0) wallX = player->pos.y + perpWallDist * rayDir.y;
+        else           wallX = player->pos.x + perpWallDist * rayDir.x;
+        wallX -= floor((wallX));
+
+        //x coordinate on the texture
+        int texX = (int) (wallX * (double) settings->texWidth);
+        if(ddaResult.side == 0 && rayDir.x > 0) texX = settings->texWidth - texX - 1;
+        if(ddaResult.side == 1 && rayDir.y < 0) texX = settings->texWidth - texX - 1;
+
+        // How much to increase the texture coordinate per screen pixel
+        double step = 1.0 * settings->texHeight / lineHeight;
+        // Starting texture coordinate
+        double texPos = (drawStart - (double) settings->height / 2 + (double) lineHeight / 2) * step;
+        for(int y = drawStart; y < drawEnd; y++)
+        {
+            // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+            int texY = (int)texPos & (settings->texHeight - 1);
+            texPos += step;
+            Uint32 color = settings->textures[1][settings->texHeight * texY + texX];
+            //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+            if(ddaResult.side == 1) color = (color >> 1) & 8355711;
+            pixels[y][settings->width - x - 1] = color;
+        }
+    }
+    SDL_UpdateTexture(texture, NULL, pixels, settings->width * sizeof(Uint32));
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    free(pixels);
+}
+
 
 void displayRays(SDL_Renderer *renderer, struct Settings *settings, struct Player *player) {
     for (int x = 0; x < settings->width; x++) {
@@ -40,14 +105,16 @@ void displayRays(SDL_Renderer *renderer, struct Settings *settings, struct Playe
         int drawEnd = lineHeight / 2 + settings->height / 2;
         if (drawEnd >= settings->height)drawEnd = settings->height - 1;
 
-        //choose wall color
-        SDL_Color color = RGB_Grey;
+        Uint32 c = settings->textures[0][0];
+        int r = (c >> 24) & 0xFF;
+        int g = (c >> 16) & 0xFF;
+        int b = (c >> 8) & 0xFF;
+        int a = (c >> 0) & 0xFF;
 
-        //give x and y sides different brightness
-        if (ddaResult.side == 1) {
-            color.r = color.r / 2;
-            color.g = color.g / 2;
-            color.b = color.b / 2;
+        if (ddaResult.side == 0) {
+            r /= 2;
+            g /= 2;
+            b /= 2;
         }
 
         int xx = settings->width - x - 1;
@@ -55,7 +122,7 @@ void displayRays(SDL_Renderer *renderer, struct Settings *settings, struct Playe
         SDL_SetRenderDrawColor(renderer, settings->skyColor.r, settings->skyColor.g, settings->skyColor.b,
                                settings->skyColor.a);
         SDL_RenderDrawLine(renderer, xx, 0, xx, drawStart);
-        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+        SDL_SetRenderDrawColor(renderer, r, g, b, a);
         SDL_RenderDrawLine(renderer, xx, drawStart, xx, drawEnd);
         SDL_SetRenderDrawColor(renderer, settings->floorColor.r, settings->floorColor.g, settings->floorColor.b,
                                settings->floorColor.a);
@@ -145,7 +212,7 @@ struct DDAResult dda(struct DVector deltaDist, struct DVector rayDir, struct Pla
 void displayMinimap(SDL_Renderer *renderer, struct Settings *settings) {
     int edge = 5;
     SDL_SetRenderDrawColor(renderer, RGB_Black.r, RGB_Black.g, RGB_Black.b, 255);
-    SDL_Rect rect = {0, 0, settings->nbColumns * 10 + 2*edge, settings->nbLines * 10 + 2*edge};
+    SDL_Rect rect = {0, 0, settings->nbColumns * 10 + 2 * edge, settings->nbLines * 10 + 2 * edge};
     SDL_RenderFillRect(renderer, &rect);
     for (int y = 0; y < settings->nbLines; y++) {
         for (int x = 0; x < settings->nbColumns; x++) {

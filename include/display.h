@@ -24,6 +24,8 @@ void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radiu
 
 void displayRays(SDL_Renderer *renderer, struct Settings *settings, struct Player *player);
 
+void displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player);
+
 struct DDAResult
 dda(struct DVector deltaDist, struct DVector rayDir, struct Player *player, struct Settings *settings);
 

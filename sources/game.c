@@ -12,8 +12,9 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
 
     for (int x = 0; x < settings.texWidth; x++) {
         for (int y = 0; y < settings.texHeight; y++) {
-            settings.textures[0][settings.texWidth * y + x] = 1684300800; //red bricks
-            settings.textures[1][settings.texWidth * y + x] = 4242210816; //red gradient
+            int ycolor = y * 256 / settings.texHeight;
+            settings.textures[0][settings.texWidth * y + x] = 1684300800;
+            settings.textures[1][settings.texWidth * y + x] = 65536 * ycolor; //red gradient
         }
     }
 

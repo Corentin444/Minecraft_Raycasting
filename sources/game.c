@@ -12,11 +12,25 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
 
     for (int x = 0; x < settings.texWidth; x++) {
         for (int y = 0; y < settings.texHeight; y++) {
+            int xorcolor = (x * 256 / settings.texWidth) ^ (y * 256 / settings.texHeight);
+            //int xcolor = x * 256 / texWidth;
             int ycolor = y * 256 / settings.texHeight;
-            settings.textures[0][settings.texWidth * y + x] = 1684300800;
-            settings.textures[1][settings.texWidth * y + x] = 65536 * ycolor; //red gradient
+            int xycolor = y * 128 / settings.texHeight + x * 128 / settings.texWidth;
+            settings.textures[0][settings.texWidth * y + x] = 65536 * 254 * (x != y && x != settings.texWidth - y); //flat red texture with black cross
+            settings.textures[1][settings.texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
+            settings.textures[2][settings.texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
+            settings.textures[3][settings.texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
+            settings.textures[4][settings.texWidth * y + x] = 256 * xorcolor; //xor green
+            settings.textures[5][settings.texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
+            settings.textures[6][settings.texWidth * y + x] = 65536 * ycolor; //red gradient
+            settings.textures[7][settings.texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
         }
     }
+
+
+    SDL_Texture *texture = SDL_CreateTexture(renderer,
+                                             SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, settings.width,
+                                             settings.height);
 
     double time = 0; //time of current frame
     double oldTime; //time of previous frame
@@ -52,9 +66,9 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                             oldY = (int) (player.pos.y);
                             newX = (int) (player.pos.x + player.dir.x * moveSpeed);
                             newY = (int) (player.pos.y + player.dir.y * moveSpeed);
-                            if (settings.map[oldY][newX] == '0')
+                            if (settings.map[oldY][newX] == 0)
                                 player.pos.x += player.dir.x * moveSpeed;
-                            if (settings.map[newY][oldX] == '0')
+                            if (settings.map[newY][oldX] == 0)
                                 player.pos.y += player.dir.y * moveSpeed;
                             break;
                         case SDLK_s:
@@ -62,9 +76,9 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                             oldY = (int) (player.pos.y);
                             newX = (int) (player.pos.x - player.dir.x * moveSpeed);
                             newY = (int) (player.pos.y - player.dir.y * moveSpeed);
-                            if (settings.map[oldY][newX] == '0')
+                            if (settings.map[oldY][newX] == 0)
                                 player.pos.x -= player.dir.x * moveSpeed;
-                            if (settings.map[newY][oldX] == '0')
+                            if (settings.map[newY][oldX] == 0)
                                 player.pos.y -= player.dir.y * moveSpeed;
                             break;
                         case SDLK_q:;
@@ -95,7 +109,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
             }
         }
         SDL_Delay(16);
-        displayScreen(renderer, &settings, &player, &compass);
+        displayScreen(renderer, &settings, &player, &compass, texture);
         SDL_RenderPresent(renderer);
     }
 }

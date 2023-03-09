@@ -50,6 +50,7 @@ int parseSettingsFile(const char *fileName, struct Settings *pSettings) {
 }
 
 int parseMapFile(const char *fileName, struct Settings *pSettings) {
+    printf("Parsing map file %s\n", fileName);
     if (setNbLinesAndNbColumns(fileName, pSettings) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
@@ -60,9 +61,9 @@ int parseMapFile(const char *fileName, struct Settings *pSettings) {
         return EXIT_FAILURE;
     }
 
-    char **map = malloc(pSettings->nbLines * sizeof(char *));
+    int **map = malloc(pSettings->nbLines * sizeof(int *));
     for (int i = 0; i < pSettings->nbLines; i++) {
-        map[i] = malloc(pSettings->nbColumns * sizeof(char));
+        map[i] = malloc(pSettings->nbColumns * sizeof(int));
     }
 
     for (int i = 0; i < pSettings->nbLines; i++) {
@@ -70,9 +71,9 @@ int parseMapFile(const char *fileName, struct Settings *pSettings) {
         char c = fgetc(file);
         while (j < pSettings->nbColumns) {
             if (c == '\n') {
-                map[i][j] = '1';
+                map[i][j] = 1;
             } else {
-                map[i][j] = c;
+                map[i][j] = digit_to_int(c);
                 c = fgetc(file);
             }
             j++;
@@ -127,4 +128,13 @@ int setNbLinesAndNbColumns(const char *fileName, struct Settings *pSettings) {
 
     fclose(file);
     return EXIT_SUCCESS;
+}
+
+int digit_to_int(char d)
+{
+    char str[2];
+
+    str[0] = d;
+    str[1] = '\0';
+    return (int) strtol(str, NULL, 10);
 }

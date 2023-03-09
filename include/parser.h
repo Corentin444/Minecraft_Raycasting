@@ -15,8 +15,8 @@ struct Settings {
     int nbColumns;
     int texWidth;
     int texHeight;
-    char **map;
-    Uint32 textures[2][64 * 64];
+    int **map;
+    Uint32 textures[8][64 * 64];
 };
 
 int parseSettingsFile(const char *fileName, struct Settings *pSettings);
@@ -26,5 +26,7 @@ int parseMapFile(const char *fileName, struct Settings *pSettings);
 int checkRgbValues(int r, int g, int b);
 
 int setNbLinesAndNbColumns(const char *fileName, struct Settings *pSettings);
+
+int digit_to_int(char d);
 
 #endif //CUB_3D_PARSER_H

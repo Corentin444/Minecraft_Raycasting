@@ -20,10 +20,26 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
     int size = 30;
     struct Compass compass = {{settings.width - size - 10, size + 9}, size, {255, 0, 0}, {120, 120, 120}, {45, 45, 45}};
 
-    SDL_Surface *wall = SDL_LoadBMP("textures/wall.bmp");
-    if (!wall) {
+    int n = 0;
+    char *textures[8] = {"wall", "grass", "chiseled", "red",
+                         "green", "blue", "plank", "wood"};
+
+    char *fileName;
+    fileName = malloc(strlen("textures/") + strlen(textures[n]) + strlen(".bmp") + 1);
+    strcpy(fileName, "textures/");
+    strcat(fileName, textures[n]);
+    strcat(fileName, ".bmp");
+
+    SDL_Surface *surface = SDL_LoadBMP(fileName);
+    if (!surface) {
         printf("Erreur de chargement de l'image : %s", SDL_GetError());
     }
+    for (int x = 0; x < settings.texWidth; x++) {
+        for (int y = 0; y < settings.texHeight; y++) {
+            settings.textures[n][settings.texWidth * y + x] = getPixelFromSurface(surface, x, y);
+        }
+    }
+
     SDL_Surface *grass = SDL_LoadBMP("textures/grass.bmp");
     if (!wall) {
         printf("Erreur de chargement de l'image : %s", SDL_GetError());

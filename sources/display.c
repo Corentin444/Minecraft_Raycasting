@@ -6,6 +6,7 @@
 #include "../include/display.h"
 
 SDL_Color RGB_Black = {0, 0, 0, 255};
+SDL_Color RGB_Red = {255, 0, 0, 255};
 
 void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass,
                    SDL_Texture *texture, int displayRays) {
@@ -69,6 +70,9 @@ displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct
             int texY = (int) texPos & (settings->texHeight - 1);
             texPos += step;
             Uint32 color = settings->textures[texNum][settings->texHeight * texY + texX];
+            if (x == 0 && y == 0 && texNum == 4)
+                printf("color: %d r: %d, g: %d, b: %d, a: %d\n", color, color >> 24, (color >> 16) & 255,
+                       (color >> 8) & 255, color & 255);
             //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
             if (ddaResult.side == 1) color = (color >> 1) & 8355711;
             pixels[y][settings->width - x - 1] = color;
@@ -194,14 +198,11 @@ void displayCompass(SDL_Renderer *renderer, struct Player *player, struct Compas
 }
 
 void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player *player) {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_Rect rect = {(int) (player->pos.x * 10) - 5, (int) (player->pos.y * 10) - 5, 10, 10};
-    if (SDL_RenderFillRects(renderer, &rect, 1) != 0) {
-        printf("Error: %s\n", SDL_GetError());
-    }
+    int edge = 5;
+    drawCircle(renderer, RGB_Red, (int) (player->pos.x * 10) + edge, (int) (player->pos.y * 10) + edge, 5);
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    int x1 = (int) (player->pos.x * 10);
-    int y1 = (int) (player->pos.y * 10);
+    int x1 = (int) (player->pos.x * 10) + edge;
+    int y1 = (int) (player->pos.y * 10) + edge;
     int x2 = x1 + (int) (30 * (player->dir.x));
     int y2 = y1 + (int) (30 * player->dir.y);
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);

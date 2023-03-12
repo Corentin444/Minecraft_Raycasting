@@ -50,7 +50,6 @@ int parseSettingsFile(const char *fileName, struct Settings *pSettings) {
 }
 
 int parseMapFile(const char *fileName, struct Settings *pSettings) {
-    printf("Parsing map file %s\n", fileName);
     if (setNbLinesAndNbColumns(fileName, pSettings) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
@@ -130,8 +129,7 @@ int setNbLinesAndNbColumns(const char *fileName, struct Settings *pSettings) {
     return EXIT_SUCCESS;
 }
 
-int digit_to_int(char d)
-{
+int digit_to_int(char d) {
     char str[2];
 
     str[0] = d;

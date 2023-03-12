@@ -70,11 +70,8 @@ displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct
             int texY = (int) texPos & (settings->texHeight - 1);
             texPos += step;
             Uint32 color = settings->textures[texNum][settings->texHeight * texY + texX];
-            if (x == 0 && y == 0 && texNum == 4)
-                printf("color: %d r: %d, g: %d, b: %d, a: %d\n", color, color >> 24, (color >> 16) & 255,
-                       (color >> 8) & 255, color & 255);
             //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-            if (ddaResult.side == 1) color = (color >> 1) & 8355711;
+            if (ddaResult.side == 1) color = (color >> 1) & 2139062016;
             pixels[y][settings->width - x - 1] = color;
         }
         for (int y = drawEnd; y < settings->height; y++) {

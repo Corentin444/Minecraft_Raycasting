@@ -1,4 +1,4 @@
-SRC = sources/init.c sources/configParser.c sources/game.c sources/display.c sources/player.c sources/utils.c
+SRC = sources/init.c sources/configParser.c sources/game.c sources/display.c sources/player.c sources/utils.c sources/mapParser.c
 CC = gcc
 CFLAGS = -Wall -I include
 LDFLAGS = -L libs -lmingw32 -lSDL2main -lSDL2 -mwindows -mconsole

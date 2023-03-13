@@ -30,4 +30,6 @@ void initTextures(struct Settings *settings);
 
 Uint32 getPixelFromSurface(SDL_Surface *surface, int x, int y);
 
+int parseMapFile(const char *fileName, struct Settings *pSettings);
+
 #endif //CUB_3D_INIT_H

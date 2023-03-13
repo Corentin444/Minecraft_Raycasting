@@ -1,8 +1,8 @@
-#ifndef CUB_3D_MAPPARSER_H
-#define CUB_3D_MAPPARSER_H
+#ifndef CUB_3D_CONFIGPARSER_H
+#define CUB_3D_CONFIGPARSER_H
 
 #include "init.h"
 
 int parseSettingsFile(const char *fileName, struct Settings *pSettings);
 
-#endif //CUB_3D_MAPPARSER_H
+#endif //CUB_3D_CONFIGPARSER_H

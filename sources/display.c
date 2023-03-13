@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <math.h>
-#include <game.h>
 #include <SDL2/SDL.h>
 #include <string.h>
 #include "../include/display.h"

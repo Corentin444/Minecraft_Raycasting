@@ -11,4 +11,8 @@ struct IVector {
     int y;
 };
 
+int checkRgbValues(int r, int g, int b);
+
+int digitToInt(char d);
+
 #endif //CUB_3D_UTILS_H

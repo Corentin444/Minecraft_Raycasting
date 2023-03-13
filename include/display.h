@@ -1,9 +1,8 @@
 #ifndef CUB_3D_DISPLAY_H
 #define CUB_3D_DISPLAY_H
 
-#include "main.h"
-#include "game.h"
-#include "player.h"
+#include "../include/init.h"
+#include "../include/player.h"
 #include "SDL2/SDL.h"
 
 struct DDAResult {

@@ -8,17 +8,17 @@ SDL_Color RGB_Black = {0, 0, 0, 255};
 SDL_Color RGB_Red = {255, 0, 0, 255};
 
 void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass,
-                   SDL_Texture *texture, int displayRays) {
+                   SDL_Texture *screenBuffer, int displayRays) {
     SDL_SetRenderDrawColor(renderer, RGB_Black.r, RGB_Black.g, RGB_Black.b, RGB_Black.a);
     SDL_RenderClear(renderer);
-    if (displayRays) displayRaysWithTexture(renderer, settings, player, texture);
+    if (displayRays) displayRaysWithTexture(renderer, settings, player, screenBuffer);
     displayMinimap(renderer, settings);
     displayPlayerOnMinimap(renderer, player);
     displayCompass(renderer, player, compass);
 }
 
 void
-displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, SDL_Texture *texture) {
+displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, SDL_Texture *screenBuffer) {
     Uint32 (*pixels)[settings->width] = malloc(sizeof(int[settings->height][settings->width]));
     memset(pixels, 255, settings->width * settings->height * sizeof(Uint32));
     for (int x = 0; x < settings->width; x++) {
@@ -77,9 +77,9 @@ displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct
             pixels[y][settings->width - x - 1] = 849891840;
         }
     }
-    SDL_UpdateTexture(texture, NULL, pixels, settings->width * sizeof(Uint32));
+    SDL_UpdateTexture(screenBuffer, NULL, pixels, (int) (settings->width * sizeof(Uint32)));
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderCopy(renderer, screenBuffer, NULL, NULL);
     free(pixels);
 }
 

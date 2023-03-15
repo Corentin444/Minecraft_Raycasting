@@ -2,10 +2,12 @@
 #define CUB_3D_INIT_H
 
 #include "utils.h"
+#include "SDL2/SDL.h"
 
 struct Settings {
     SDL_Color floorColor;
     SDL_Color skyColor;
+    int fps;
     int width;
     int height;
     int nbLines;

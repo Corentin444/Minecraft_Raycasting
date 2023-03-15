@@ -3,7 +3,6 @@
 #include <SDL2/SDL.h>
 
 #include "../include/init.h"
-#include "../include/utils.h"
 
 int parseSettingsFile(const char *fileName, struct Settings *pSettings) {
     FILE *file = fopen(fileName, "r");

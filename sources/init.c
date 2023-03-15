@@ -20,7 +20,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Error: cannot parse the map file\n");
         return -1;
     }
-    printf("with: %d, height: %d", settings.width, settings.height);
 
     initTextures(&settings);
 

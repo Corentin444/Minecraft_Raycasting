@@ -14,11 +14,12 @@ void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Pla
     if (displayRays) displayRaysWithTexture(renderer, settings, player, screenBuffer);
     displayMinimap(renderer, settings);
     displayPlayerOnMinimap(renderer, player);
-    displayCompass(renderer, player, compass);
+    displayCompass(renderer, player, compass, screenBuffer);
 }
 
 void
-displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, SDL_Texture *screenBuffer) {
+displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player,
+                       SDL_Texture *screenBuffer) {
     Uint32 (*pixels)[settings->width] = malloc(sizeof(int[settings->height][settings->width]));
     memset(pixels, 255, settings->width * settings->height * sizeof(Uint32));
     for (int x = 0; x < settings->width; x++) {
@@ -182,15 +183,26 @@ void displayMinimap(SDL_Renderer *renderer, struct Settings *settings) {
     }
 }
 
-void displayCompass(SDL_Renderer *renderer, struct Player *player, struct Compass *compass) {
-    drawCircle(renderer, compass->outline, compass->pos.x, compass->pos.y, compass->size + 10);
-    drawCircle(renderer, compass->background, compass->pos.x, compass->pos.y, compass->size + 5);
-    SDL_SetRenderDrawColor(renderer, compass->line.r, compass->line.g, compass->line.b, 255);
+void displayCompass(SDL_Renderer *renderer, struct Player *player, struct Compass *compass, SDL_Texture *screenBuffer) {
+    drawCircle(renderer, compass->borderColor, compass->pos.x, compass->pos.y, compass->size + 10);
+    drawCircle(renderer, compass->bgColor, compass->pos.x, compass->pos.y, compass->size + 5);
+    SDL_SetRenderDrawColor(renderer, compass->color.r, compass->color.g, compass->color.b, 255);
     int x1 = compass->pos.x;
     int y1 = compass->pos.y;
     int x2 = x1 + (int) (compass->size * (player->dir.x));
     int y2 = y1 + (int) (compass->size * player->dir.y);
-    SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+    // TODO afficher un triangle rouge
+    SDL_Vertex vertex_1 = {{x1, y1}, {compass->color.r, compass->color.g, compass->color.b, 255}};
+    SDL_Vertex vertex_2 = {{x2+5, y2+5}, {compass->color.r, compass->color.g, compass->color.b, 255}};
+    SDL_Vertex vertex_3 = {{x2-5, y2-5}, {compass->color.r, compass->color.g, compass->color.b, 255}};
+    SDL_Vertex vertices[] = {
+            vertex_1,
+            vertex_2,
+            vertex_3
+    };
+
+    SDL_SetRenderDrawColor(renderer, compass->color.r, compass->color.g, compass->color.b, 255);
+    SDL_RenderGeometry(renderer, screenBuffer, vertices, 3, NULL, 0);
 }
 
 void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player *player) {

@@ -7,7 +7,6 @@
 struct Settings {
     SDL_Color floorColor;
     SDL_Color skyColor;
-    int fps;
     int width;
     int height;
     int nbLines;
@@ -21,9 +20,9 @@ struct Settings {
 struct Compass {
     struct IVector pos;
     int size;
-    SDL_Color line;
-    SDL_Color background;
-    SDL_Color outline;
+    SDL_Color color;
+    SDL_Color bgColor;
+    SDL_Color borderColor;
 };
 
 int initWindowAndRenderer(struct Settings settings);

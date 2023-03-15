@@ -1,18 +1,43 @@
 #include <SDL2/SDL.h>
 #include <time.h>
+#include <stdio.h>
 
 #include "init.h"
 #include "display.h"
 #include "player.h"
 
-void loop(SDL_Renderer *renderer, struct Settings settings) {
-    struct Player player = {{5, 5}, {-1, 0}, {0, 0.66}, 0.1, 0.05};
-    int size = 30;
-    struct Compass compass = {{settings.width - size - 10, size + 9}, size, {255, 0, 0}, {120, 120, 120}, {45, 45, 45}};
+struct Player *initPlayer(struct Settings *settings) {
+    struct Player *player = malloc(sizeof(struct Player));
+    // TODO find a free position to spawn the player
+    player->pos.x = 5;
+    player->pos.y = 5;
+    player->dir.x = -1;
+    player->dir.y = 0;
+    player->plane.x = 0;
+    player->plane.y = 0.66;
+    player->moveSpeed = 0.1;
+    player->rotSpeed = 0.05;
+    return player;
+}
 
+struct Compass *initCompass(struct Settings *settings) {
+    struct Compass *compass = malloc(sizeof(struct Compass));
+    int size = settings->width / 20;
+    compass->pos.x = settings->width - size - size / 3;
+    compass->pos.y = size + size / 3;
+    compass->size = size;
+    compass->color = (SDL_Color) {255, 0, 0};
+    compass->bgColor = (SDL_Color) {120, 120, 120};
+    compass->borderColor = (SDL_Color) {45, 45, 45};
+    return compass;
+}
+
+void loop(SDL_Renderer *renderer, struct Settings settings) {
+    struct Player *player = initPlayer(&settings);
+    struct Compass *compass = initCompass(&settings);
     SDL_Texture *screenBuffer = SDL_CreateTexture(renderer,
-                                             SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, settings.width,
-                                             settings.height);
+                                                  SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, settings.width,
+                                                  settings.height);
 
     double time = 0; //time of current frame
     double oldTime; //time of previous frame
@@ -36,16 +61,16 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym) {
                         case SDLK_z:
-                            move(&player, &settings, 1, frameTime);
+                            move(player, &settings, 1, frameTime);
                             break;
                         case SDLK_s:
-                            move(&player, &settings, -1, frameTime);
+                            move(player, &settings, -1, frameTime);
                             break;
                         case SDLK_q:
-                            rotate(&player, 1, frameTime);
+                            rotate(player, 1, frameTime);
                             break;
                         case SDLK_d:
-                            rotate(&player, -1, frameTime);
+                            rotate(player, -1, frameTime);
                             break;
                         case SDLK_m:
                             displayRays = !displayRays;
@@ -61,7 +86,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                     break;
             }
         }
-        displayScreen(renderer, &settings, &player, &compass, screenBuffer, displayRays);
+        displayScreen(renderer, &settings, player, compass, screenBuffer, displayRays);
         SDL_RenderPresent(renderer);
     }
 }

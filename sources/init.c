@@ -66,8 +66,8 @@ SDL_Renderer *initRenderer(SDL_Window *window) {
 
 void initTextures(struct Settings *settings) {
     int n = 8;
-    char *textures[8] = {"wall", "grass", "chiseled", "red",
-                         "green", "blue", "plank", "wood"};
+    char *textures[8] = {"bricks", "chiseled", "cobblestone", "grass",
+                         "planks", "stone", "stonebricks", "log"};
 
     for (int i = 0; i < n; i++) {
         char *fileName;

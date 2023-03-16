@@ -36,36 +36,16 @@ void loop(SDL_Renderer *renderer, struct Settings *settings) {
         double frameTime = (time - oldTime) / 1000.0;
         //printf("%d FPS\n", (int) (1.0 / frameTime))
 
+        const Uint8 *state = SDL_GetKeyboardState(NULL);
+
         while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_QUIT:
-                    quit = 1;
-                    break;
-                case SDL_KEYDOWN:
-                    switch (event.key.keysym.sym) {
-                        case SDLK_z:
-                            move(player, settings, 1, frameTime);
-                            break;
-                        case SDLK_s:
-                            move(player, settings, -1, frameTime);
-                            break;
-                        case SDLK_q:
-                            rotate(player, 1, frameTime);
-                            break;
-                        case SDLK_d:
-                            rotate(player, -1, frameTime);
-                            break;
-                        case SDLK_ESCAPE:
-                            quit = 1;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                default:
-                    break;
-            }
+            if (state[SDL_SCANCODE_W]) move(player, settings, 1, frameTime);
+            if (state[SDL_SCANCODE_S]) move(player, settings, -1, frameTime);
+            if (state[SDL_SCANCODE_A]) rotate(player, 1, frameTime);
+            if (state[SDL_SCANCODE_D]) rotate(player, -1, frameTime);
+            if (state[SDL_SCANCODE_ESCAPE]) quit = 1;
         }
+
         displayScreen(renderer, settings, player, compass, screenBuffer);
         SDL_RenderPresent(renderer);
     }

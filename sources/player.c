@@ -21,7 +21,7 @@ void move(struct Player *player, struct Settings *settings, int direction, doubl
     struct DVector newPos = player->pos;
 
     // Calcule le ratio entre le temps de la frame et la vitesse de déplacement du joueur pour avoir une vitesse constante quelque soit la fréquence d'actualisation
-    double moveSpeed = frameTime * 5.0;
+    double moveSpeed = frameTime * 2.0;
 
     // Avance d'une case si direction = 1
     if (direction == 1) {
@@ -48,7 +48,7 @@ void rotate(struct Player *player, int direction, double frameTime) {
     struct DVector newPlane = player->plane;
 
     // Calcule le ratio entre le temps de la frame et la vitesse de rotation du joueur pour avoir une vitesse constante quelque soit la fréquence d'actualisation
-    double rotSpeed = frameTime * 2.5;
+    double rotSpeed = frameTime * 1.0;
 
     // Tourne à gauche si direction = 1
     if (direction == 1) {

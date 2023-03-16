@@ -16,11 +16,11 @@ void displayMinimap(SDL_Renderer *renderer, struct Settings *settings);
 void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player *player);
 
 void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass,
-                   SDL_Texture *screenBuffer, int displayRays);
+                   SDL_Texture *screenBuffer);
 
 void displayCompass(SDL_Renderer *renderer, struct Player *player, struct Compass *compass, SDL_Texture *screenBuffer);
 
-void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius);
+void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius, int scale);
 
 void displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player,
                             SDL_Texture *screenBuffer);

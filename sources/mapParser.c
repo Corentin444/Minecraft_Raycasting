@@ -14,7 +14,6 @@ int setNbLinesAndNbColumns(const char *fileName, struct Settings *pSettings) {
     int nbColumns = 0;
     int i = 0;
 
-    // count the nb of lines and columns in the file
     char c;
     while ((c = fgetc(file)) != EOF) {
         if (c == '\n') {
@@ -31,9 +30,7 @@ int setNbLinesAndNbColumns(const char *fileName, struct Settings *pSettings) {
     pSettings->nbLines = nbLines;
     pSettings->nbColumns = nbColumns;
 
-    // reset the file pointer to the beginning of the file
     fseek(file, 0, SEEK_SET);
-
     fclose(file);
     return EXIT_SUCCESS;
 }

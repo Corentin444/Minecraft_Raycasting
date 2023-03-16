@@ -1,24 +1,9 @@
 #include <SDL2/SDL.h>
 #include <time.h>
-#include <stdio.h>
 
 #include "init.h"
 #include "display.h"
 #include "player.h"
-
-struct Player *initPlayer(struct Settings *settings) {
-    struct Player *player = malloc(sizeof(struct Player));
-    // TODO find a free position to spawn the player
-    player->pos.x = 5;
-    player->pos.y = 5;
-    player->dir.x = -1;
-    player->dir.y = 0;
-    player->plane.x = 0;
-    player->plane.y = 0.66;
-    player->moveSpeed = 0.1;
-    player->rotSpeed = 0.05;
-    return player;
-}
 
 struct Compass *initCompass(struct Settings *settings) {
     struct Compass *compass = malloc(sizeof(struct Compass));
@@ -32,26 +17,24 @@ struct Compass *initCompass(struct Settings *settings) {
     return compass;
 }
 
-void loop(SDL_Renderer *renderer, struct Settings settings) {
-    struct Player *player = initPlayer(&settings);
-    struct Compass *compass = initCompass(&settings);
+void loop(SDL_Renderer *renderer, struct Settings *settings) {
+    struct Player *player = initPlayer();
+    struct Compass *compass = initCompass(settings);
     SDL_Texture *screenBuffer = SDL_CreateTexture(renderer,
-                                                  SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, settings.width,
-                                                  settings.height);
+                                                  SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, settings->width,
+                                                  settings->height);
 
-    double time = 0; //time of current frame
-    double oldTime; //time of previous frame
+    double time = 0;
+    double oldTime;
 
     int quit = 0;
     SDL_Event event;
-    int displayRays = 1;
 
     while (!quit) {
-        //timing for input and FPS counter
         oldTime = time;
         time = clock();
-        double frameTime = (time - oldTime) / 1000.0; //frameTime is the time this frame has taken, in seconds
-        //printf("%d FPS\n", (int) (1.0 / frameTime)); //FPS counter
+        double frameTime = (time - oldTime) / 1000.0;
+        //printf("%d FPS\n", (int) (1.0 / frameTime))
 
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -61,19 +44,16 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym) {
                         case SDLK_z:
-                            move(player, &settings, 1, frameTime);
+                            move(player, settings, 1, frameTime);
                             break;
                         case SDLK_s:
-                            move(player, &settings, -1, frameTime);
+                            move(player, settings, -1, frameTime);
                             break;
                         case SDLK_q:
                             rotate(player, 1, frameTime);
                             break;
                         case SDLK_d:
                             rotate(player, -1, frameTime);
-                            break;
-                        case SDLK_m:
-                            displayRays = !displayRays;
                             break;
                         case SDLK_ESCAPE:
                             quit = 1;
@@ -86,7 +66,7 @@ void loop(SDL_Renderer *renderer, struct Settings settings) {
                     break;
             }
         }
-        displayScreen(renderer, &settings, player, compass, screenBuffer, displayRays);
+        displayScreen(renderer, settings, player, compass, screenBuffer);
         SDL_RenderPresent(renderer);
     }
 }

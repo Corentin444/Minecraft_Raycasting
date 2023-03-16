@@ -2,12 +2,26 @@
 
 #include "../include/player.h"
 
+struct Player *initPlayer() {
+    struct Player *player = malloc(sizeof(struct Player));
+    // TODO find a free position to spawn the player
+    player->pos.x = 5;
+    player->pos.y = 5;
+    player->dir.x = -1;
+    player->dir.y = 0;
+    player->plane.x = 0;
+    player->plane.y = 0.66;
+    player->moveSpeed = 0.1;
+    player->rotSpeed = 0.05;
+    return player;
+}
+
 void move(struct Player *player, struct Settings *settings, int direction, double frameTime) {
     // Création d'une nouvelle variable pour ne pas modifier l'anciennes
     struct DVector newPos = player->pos;
 
     // Calcule le ratio entre le temps de la frame et la vitesse de déplacement du joueur pour avoir une vitesse constante quelque soit la fréquence d'actualisation
-    double moveSpeed = frameTime * 20.0;
+    double moveSpeed = frameTime * 5.0;
 
     // Avance d'une case si direction = 1
     if (direction == 1) {
@@ -34,7 +48,7 @@ void rotate(struct Player *player, int direction, double frameTime) {
     struct DVector newPlane = player->plane;
 
     // Calcule le ratio entre le temps de la frame et la vitesse de rotation du joueur pour avoir une vitesse constante quelque soit la fréquence d'actualisation
-    double rotSpeed = frameTime * 10.0;
+    double rotSpeed = frameTime * 2.5;
 
     // Tourne à gauche si direction = 1
     if (direction == 1) {

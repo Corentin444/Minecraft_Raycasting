@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <SDL2/SDL.h>
 #include <string.h>
@@ -8,10 +9,9 @@ SDL_Color RGB_Black = {0, 0, 0, 255};
 SDL_Color RGB_Red = {255, 0, 0, 255};
 
 void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass,
-                   SDL_Texture *screenBuffer, int displayRays) {
-    SDL_SetRenderDrawColor(renderer, RGB_Black.r, RGB_Black.g, RGB_Black.b, RGB_Black.a);
+                   SDL_Texture *screenBuffer) {
     SDL_RenderClear(renderer);
-    if (displayRays) displayRaysWithTexture(renderer, settings, player, screenBuffer);
+    displayRaysWithTexture(renderer, settings, player, screenBuffer);
     displayMinimap(renderer, settings);
     displayPlayerOnMinimap(renderer, player);
     displayCompass(renderer, player, compass, screenBuffer);
@@ -79,7 +79,6 @@ displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct
         }
     }
     SDL_UpdateTexture(screenBuffer, NULL, pixels, (int) (settings->width * sizeof(Uint32)));
-    SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, screenBuffer, NULL, NULL);
     free(pixels);
 }
@@ -184,30 +183,23 @@ void displayMinimap(SDL_Renderer *renderer, struct Settings *settings) {
 }
 
 void displayCompass(SDL_Renderer *renderer, struct Player *player, struct Compass *compass, SDL_Texture *screenBuffer) {
-    drawCircle(renderer, compass->borderColor, compass->pos.x, compass->pos.y, compass->size + 10);
-    drawCircle(renderer, compass->bgColor, compass->pos.x, compass->pos.y, compass->size + 5);
-    SDL_SetRenderDrawColor(renderer, compass->color.r, compass->color.g, compass->color.b, 255);
+    drawCircle(renderer, compass->borderColor, compass->pos.x, compass->pos.y, compass->size + 10, 5);
+    drawCircle(renderer, compass->bgColor, compass->pos.x, compass->pos.y, compass->size + 5, 5);
     int x1 = compass->pos.x;
     int y1 = compass->pos.y;
     int x2 = x1 + (int) (compass->size * (player->dir.x));
     int y2 = y1 + (int) (compass->size * player->dir.y);
-    // TODO afficher un triangle rouge
-    SDL_Vertex vertex_1 = {{x1, y1}, {compass->color.r, compass->color.g, compass->color.b, 255}};
-    SDL_Vertex vertex_2 = {{x2+5, y2+5}, {compass->color.r, compass->color.g, compass->color.b, 255}};
-    SDL_Vertex vertex_3 = {{x2-5, y2-5}, {compass->color.r, compass->color.g, compass->color.b, 255}};
-    SDL_Vertex vertices[] = {
-            vertex_1,
-            vertex_2,
-            vertex_3
-    };
-
+    int scale = 5;
+    SDL_RenderSetScale(renderer, (float) scale, (float) scale);
     SDL_SetRenderDrawColor(renderer, compass->color.r, compass->color.g, compass->color.b, 255);
-    SDL_RenderGeometry(renderer, screenBuffer, vertices, 3, NULL, 0);
+    SDL_RenderDrawLine(renderer, x1 / scale, y1 / scale, x2 / scale, y2 / scale);
+    SDL_RenderSetScale(renderer, 1, 1);
 }
 
 void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player *player) {
+    SDL_RenderSetScale(renderer, 1, 1);
     int edge = 5;
-    drawCircle(renderer, RGB_Red, (int) (player->pos.x * 10) + edge, (int) (player->pos.y * 10) + edge, 5);
+    drawCircle(renderer, RGB_Red, (int) (player->pos.x * 10) + edge, (int) (player->pos.y * 10) + edge, 5, 1);
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     int x1 = (int) (player->pos.x * 10) + edge;
     int y1 = (int) (player->pos.y * 10) + edge;
@@ -216,15 +208,17 @@ void displayPlayerOnMinimap(SDL_Renderer *renderer, struct Player *player) {
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 }
 
-void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius) {
+void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius, int scale) {
+    SDL_RenderSetScale(renderer, (float) scale, (float) scale);
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     for (int w = 0; w < radius * 2; w++) {
         for (int h = 0; h < radius * 2; h++) {
             int dx = radius - w;
             int dy = radius - h;
             if ((dx * dx + dy * dy) <= (radius * radius)) {
-                SDL_RenderDrawPoint(renderer, x + dx, y + dy);
+                SDL_RenderDrawPoint(renderer, (x + dx) / scale, (y + dy) / scale);
             }
         }
     }
+    SDL_RenderSetScale(renderer, 1, 1);
 }

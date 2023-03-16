@@ -12,6 +12,8 @@ struct Player {
     double rotSpeed;
 };
 
+struct Player *initPlayer();
+
 void move(struct Player *player, struct Settings *settings, int direction, double frameTime);
 
 void rotate(struct Player *player, int direction, double frameTime);

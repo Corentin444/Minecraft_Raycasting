@@ -25,11 +25,13 @@ struct Compass {
     SDL_Color borderColor;
 };
 
-int initWindowAndRenderer(struct Settings settings);
+struct Settings *initSetting();
+
+SDL_Window *initWindow(struct Settings *settings);
+
+SDL_Renderer *initRenderer(SDL_Window *window);
 
 void initTextures(struct Settings *settings);
-
-Uint32 getPixelFromSurface(SDL_Surface *surface, int x, int y);
 
 int parseMapFile(const char *fileName, struct Settings *pSettings);
 

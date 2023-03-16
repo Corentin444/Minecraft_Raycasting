@@ -7,66 +7,61 @@
 #include "configParser.h"
 #include "mapParser.h"
 
-SDL_Window *window;
-SDL_Renderer *renderer;
-
 int main(int argc, char *argv[]) {
-    struct Settings settings;
-    if (parseSettingsFile("./settings.txt", &settings) == EXIT_FAILURE) {
-        fprintf(stderr, "Error: cannot parse the config file\n");
-        return -1;
-    }
-    if (parseMapFile("./data/map2.txt", &settings) == EXIT_FAILURE) {
-        fprintf(stderr, "Error: cannot parse the map file\n");
-        return -1;
-    }
+    struct Settings *settings = initSetting();
+    if (NULL == settings) return EXIT_FAILURE;
 
-    initTextures(&settings);
+    initTextures(settings);
 
-    if (initWindowAndRenderer(settings) == EXIT_FAILURE) {
-        fprintf(stderr, "Error: cannot init the window and the renderer\n");
-        return -1;
-    }
+    SDL_Window *window = initWindow(settings);
+    if (NULL == window) return EXIT_FAILURE;
+    SDL_Renderer *renderer = initRenderer(window);
+    if (NULL == renderer) return EXIT_FAILURE;
 
     loop(renderer, settings);
 
-    if (NULL != renderer)
-        SDL_DestroyRenderer(renderer);
-    if (NULL != window)
-        SDL_DestroyWindow(window);
+    if (NULL != renderer) SDL_DestroyRenderer(renderer);
+    if (NULL != window) SDL_DestroyWindow(window);
 
     SDL_Quit();
 
     return EXIT_SUCCESS;
 }
 
-int initWindowAndRenderer(struct Settings settings) {
-    if (0 != SDL_Init(SDL_INIT_VIDEO)) {
-        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError());
-        return EXIT_FAILURE;
+struct Settings *initSetting() {
+    struct Settings *settings = malloc(sizeof(struct Settings));
+    if (parseSettingsFile("./settings.txt", settings) == EXIT_FAILURE) {
+        fprintf(stderr, "Error: cannot parse the config file\n");
+        return NULL;
     }
-    window = SDL_CreateWindow("CUB_3D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              settings.width, settings.height, SDL_WINDOW_SHOWN);
-    if (NULL == window) {
-        fprintf(stderr, "Erreur de creation de la fenetre : %s\n", SDL_GetError());
-        return EXIT_FAILURE;
+    if (parseMapFile("./data/map2.txt", settings) == EXIT_FAILURE) {
+        fprintf(stderr, "Error: cannot parse the map file\n");
+        return NULL;
     }
-    renderer = SDL_CreateRenderer((SDL_Window *) window, -1, SDL_RENDERER_ACCELERATED);
-    if (NULL == renderer) {
-        fprintf(stderr, "Erreur de creation du renderer : %s\n", SDL_GetError());
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+    return settings;
 }
 
-Uint32 getPixelFromSurface(SDL_Surface *surface, int x, int y) {
-    int bpp = surface->format->BytesPerPixel;
-    Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
-    Uint32 pixel = p[0] | p[1] << 8 | p[2] << 16;
-    Uint8 r, g, b;
-    SDL_GetRGB(pixel, surface->format, &r, &g, &b);
-    return (r << 24) + (g << 16) + (b << 8);
+SDL_Window *initWindow(struct Settings *settings) {
+    if (0 != SDL_Init(SDL_INIT_VIDEO)) {
+        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError());
+        return NULL;
+    }
+    SDL_Window *window = SDL_CreateWindow("CUB_3D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                          settings->width, settings->height, SDL_WINDOW_SHOWN);
+    if (NULL == window) {
+        fprintf(stderr, "Erreur de creation de la fenetre : %s\n", SDL_GetError());
+        return NULL;
+    }
+    return window;
+}
+
+SDL_Renderer *initRenderer(SDL_Window *window) {
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (NULL == renderer) {
+        fprintf(stderr, "Erreur de creation du renderer : %s\n", SDL_GetError());
+        return NULL;
+    }
+    return renderer;
 }
 
 void initTextures(struct Settings *settings) {

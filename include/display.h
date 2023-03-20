@@ -22,8 +22,9 @@ void displayCompass(SDL_Renderer *renderer, struct Player *player, struct Compas
 
 void drawCircle(SDL_Renderer *renderer, SDL_Color color, int x, int y, int radius, int scale);
 
-void displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player,
-                            SDL_Texture *screenBuffer);
+void displayWall(struct Settings *settings, struct Player *player, Uint32 (*pixels)[settings->width]);
+
+void displayFloor(struct Settings *settings, struct Player *player, Uint32 (*pixels)[settings->width]);
 
 struct DDAResult
 dda(struct DVector deltaDist, struct DVector rayDir, struct Player *player, struct Settings *settings);

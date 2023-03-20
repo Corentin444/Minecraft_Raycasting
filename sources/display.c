@@ -11,17 +11,21 @@ SDL_Color RGB_Red = {255, 0, 0, 255};
 void displayScreen(SDL_Renderer *renderer, struct Settings *settings, struct Player *player, struct Compass *compass,
                    SDL_Texture *screenBuffer) {
     SDL_RenderClear(renderer);
-    displayRaysWithTexture(renderer, settings, player, screenBuffer);
+
+    Uint32 (*pixels)[settings->width] = malloc(sizeof(int[settings->height][settings->width]));
+    memset(pixels, 255, settings->width * settings->height * sizeof(Uint32));
+    displayFloor(settings, player, pixels);
+    displayWall(settings, player, pixels);
+    SDL_UpdateTexture(screenBuffer, NULL, pixels, (int) (settings->width * sizeof(Uint32)));
+    SDL_RenderCopy(renderer, screenBuffer, NULL, NULL);
+    free(pixels);
+
     displayMinimap(renderer, settings);
     displayPlayerOnMinimap(renderer, player);
     displayCompass(renderer, player, compass, screenBuffer);
 }
 
-void
-displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct Player *player,
-                       SDL_Texture *screenBuffer) {
-    Uint32 (*pixels)[settings->width] = malloc(sizeof(int[settings->height][settings->width]));
-    memset(pixels, 255, settings->width * settings->height * sizeof(Uint32));
+void displayWall(struct Settings *settings, struct Player *player, Uint32 (*pixels)[settings->width]) {
     for (int x = 0; x < settings->width; x++) {
         double cameraX = 2 * x / (double) settings->width - 1;
         struct DVector rayDir = {player->dir.x + player->plane.x * cameraX, player->dir.y + player->plane.y * cameraX};
@@ -62,9 +66,6 @@ displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct
         // Starting texture coordinate
         double texPos = (drawStart - (double) settings->height / 2 + (double) lineHeight / 2) * step;
 
-        for (int y = 0; y < drawStart; y++) {
-            pixels[y][settings->width - x - 1] = 9757440;
-        }
         for (int y = drawStart; y < drawEnd; y++) {
             // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
             int texY = (int) texPos & (settings->texHeight - 1);
@@ -74,13 +75,41 @@ displayRaysWithTexture(SDL_Renderer *renderer, struct Settings *settings, struct
             if (ddaResult.side == 1) color = (color >> 1) & 2139062016;
             pixels[y][settings->width - x - 1] = color;
         }
-        for (int y = drawEnd; y < settings->height; y++) {
-            pixels[y][settings->width - x - 1] = 849891840;
-        }
     }
-    SDL_UpdateTexture(screenBuffer, NULL, pixels, (int) (settings->width * sizeof(Uint32)));
-    SDL_RenderCopy(renderer, screenBuffer, NULL, NULL);
-    free(pixels);
+}
+
+void displayFloor(struct Settings *settings, struct Player *player, Uint32 (*pixels)[settings->width]) {
+    for (int y = 0; y < settings->height; y++) {
+        struct DVector rayDir0 = {player->dir.x - player->plane.x, player->dir.y - player->plane.y};
+        struct DVector rayDir1 = {player->dir.x + player->plane.x, player->dir.y + player->plane.y};
+
+        int p = y - settings->height / 2;
+        double posZ = 0.5 * settings->height;
+        double rowDistance = posZ / p;
+        struct DVector floorStep = {rowDistance * (rayDir1.x - rayDir0.x) / settings->width,
+                                    rowDistance * (rayDir1.y - rayDir0.y) / settings->width};
+        struct DVector floorPos = {player->pos.x + rowDistance * rayDir0.x,
+                                   player->pos.y + rowDistance * rayDir0.y};
+        for (int x = 0; x < settings->width; x++) {
+            struct IVector cell = {(int) floorPos.x, (int) floorPos.y};
+            struct IVector t = {(int) (settings->texWidth * (floorPos.x - cell.x)) & (settings->texWidth - 1),
+                                (int) (settings->texHeight * (floorPos.y - cell.y)) & (settings->texHeight - 1)};
+            floorPos.x += floorStep.x;
+            floorPos.y += floorStep.y;
+            int floorTex = 3;
+            int ceilingTex = 4;
+            Uint32 color;
+
+            //floor
+            color = settings->textures[floorTex][settings->texWidth * t.y + t.x];
+            pixels[y][x] = color;
+
+            //ceiling (symmetrical!)
+            color = settings->textures[ceilingTex][settings->texWidth * t.y + t.x];
+            pixels[settings->height - y - 1][x] = color;
+        }
+
+    }
 }
 
 struct IVector getStep(struct DVector rayDir) {

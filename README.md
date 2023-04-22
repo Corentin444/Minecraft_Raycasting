@@ -1,16 +1,18 @@
-# CheapCraft 3D
-Ce projet a pour but d'implémenter un moteur de rendu 3D basique, en utilisant la technique du ray-casting.
-Il utilise la librairie graphique SDL2.
+# Minecraft Raycasting
+This project aims to implement a basic 3D rendering engine, using the ray-casting technique. It uses the SDL2 graphics library.
 
-![alt text](screenshots/screenshot%20(1).png "Screenshot n°1")
+⚠️ This project only compiles with MinGW32 ⚠️
 
-## Fonctionnalités
-- [x] Gestion des textures
-- [x] Gestion des mouvements
-- [x] Gestion des collisions
-- [x] Gestion des touches
-## Lancement sur Windows avec MinGW en 32 bits
-``make & CUB_3D.exe``
+<p align="center">
+	<img src="screenshots/screenshot%20(1).png" width="700">
+</p>
+
+## Features
+- [x] Texture management
+- [x] Motion management
+- [x] Collision management
+- [x] Key management
+
 # Screenshots
 ![alt text](screenshots/screenshot%20(1).png "Screenshot n°1")
 ![alt text](screenshots/screenshot%20(2).png "Screenshot n°2")
